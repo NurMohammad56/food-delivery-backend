@@ -1,18 +1,21 @@
-import { verifyToken } from '../utils/jwt.js';
-import User from '../models/User.js';
+import { verifyToken } from "../utils/jwt.js";
+import User from "../models/User.js";
 
 export const protect = async (req, res, next) => {
   try {
     let token;
 
-    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-      token = req.headers.authorization.split(' ')[1];
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith("Bearer")
+    ) {
+      token = req.headers.authorization.split(" ")[1];
     }
 
     if (!token) {
       res.status(401).json({
         success: false,
-        message: 'Not authorized to access this route. Please login.'
+        message: "Not authorized to access this route. Please login.",
       });
       return;
     }
@@ -24,7 +27,7 @@ export const protect = async (req, res, next) => {
       if (!user) {
         res.status(401).json({
           success: false,
-          message: 'User no longer exists'
+          message: "User no longer exists",
         });
         return;
       }
@@ -36,13 +39,13 @@ export const protect = async (req, res, next) => {
     } catch (error) {
       res.status(401).json({
         success: false,
-        message: 'Invalid or expired token'
+        message: "Invalid or expired token",
       });
     }
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Authentication error'
+      message: "Authentication error",
     });
   }
 };
@@ -52,7 +55,7 @@ export const authorize = (...roles) => {
     if (!req.user) {
       res.status(401).json({
         success: false,
-        message: 'Not authorized'
+        message: "Not authorized",
       });
       return;
     }
@@ -60,7 +63,7 @@ export const authorize = (...roles) => {
     if (!roles.includes(req.user.role)) {
       res.status(403).json({
         success: false,
-        message: `Role '${req.user.role}' is not authorized to access this route`
+        message: `Role '${req.user.role}' is not authorized to access this route`,
       });
       return;
     }

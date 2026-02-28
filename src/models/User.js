@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
-import bcrypt from 'bcryptjs';
+import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
 const { Schema } = mongoose;
 
@@ -7,60 +7,73 @@ const userSchema = new Schema(
   {
     name: {
       type: String,
-      required: [true, 'Please provide your name'],
+      required: [true, "Please provide your name"],
       trim: true,
-      maxlength: [100, 'Name cannot exceed 100 characters']
+      maxlength: [100, "Name cannot exceed 100 characters"],
     },
     email: {
       type: String,
-      required: [true, 'Please provide your email'],
+      required: [true, "Please provide your email"],
       unique: true,
       lowercase: true,
       trim: true,
-      match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Please provide a valid email address']
+      match: [
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+        "Please provide a valid email address",
+      ],
+      index: true,
     },
     studentId: {
       type: String,
-      required: [true, 'Please provide your student ID'],
+      required: [true, "Please provide your student ID"],
       unique: true,
-      trim: true
+      trim: true,
+      index: true,
     },
     phone: {
       type: String,
-      required: [true, 'Please provide your phone number'],
-      trim: true
+      required: [true, "Please provide your phone number"],
+      trim: true,
+    },
+    avatar: {
+      public_id: {
+        type: String,
+      },
+      url: {
+        type: String,
+      },
     },
     password: {
       type: String,
-      required: [true, 'Please provide a password'],
-      minlength: [8, 'Password must be at least 8 characters'],
-      select: false
+      required: [true, "Please provide a password"],
+      minlength: [8, "Password must be at least 8 characters"],
+      select: false,
     },
     role: {
       type: String,
-      enum: ['student', 'admin'],
-      default: 'student'
+      enum: ["student", "admin"],
+      default: "student",
     },
     isVerified: {
       type: Boolean,
-      default: false
+      default: false,
     },
     resetPasswordToken: {
       type: String,
-      select: false
+      select: false,
     },
     resetPasswordExpire: {
       type: Date,
-      select: false
-    }
+      select: false,
+    },
   },
   {
-    timestamps: true
-  }
+    timestamps: true,
+  },
 );
 
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) {
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) {
     return next();
   }
 
@@ -77,9 +90,6 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-userSchema.index({ email: 1 });
-userSchema.index({ studentId: 1 });
-
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model("User", userSchema);
 
 export default User;

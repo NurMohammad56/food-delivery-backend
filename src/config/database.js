@@ -1,8 +1,10 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const connectDB = async () => {
   try {
-    const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/nub_food_delivery';
+    const mongoUri =
+      process.env.MONGODB_URI ||
+      "mongodb+srv://nmbdcalling_db_user:D91uWK1OmCaccLm4@cluster0.mj6dab7.mongodb.net/?appName=Cluster0";
 
     const conn = await mongoose.connect(mongoUri);
 
@@ -14,17 +16,17 @@ const connectDB = async () => {
   }
 };
 
-mongoose.connection.on('disconnected', () => {
-  console.log('MongoDB Disconnected');
+mongoose.connection.on("disconnected", () => {
+  console.log("MongoDB Disconnected");
 });
 
-mongoose.connection.on('error', (err) => {
+mongoose.connection.on("error", (err) => {
   console.error(`MongoDB Error: ${err}`);
 });
 
-process.on('SIGINT', async () => {
+process.on("SIGINT", async () => {
   await mongoose.connection.close();
-  console.log('MongoDB connection closed through app termination');
+  console.log("MongoDB connection closed through app termination");
   process.exit(0);
 });
 
