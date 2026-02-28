@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import User from "../models/User.js";
-import Category from "../models/Category.js";
-import MenuItem from "../models/MenuItem.js";
+import User from "../models/user.model.js";
+import Category from "../models/category.model.js";
+import MenuItem from "../models/menuItem.model.js";
 
 dotenv.config();
 

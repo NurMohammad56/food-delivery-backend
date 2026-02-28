@@ -1,31 +1,31 @@
-import Cart from '../models/Cart.js';
-import MenuItem from '../models/MenuItem.js';
+import Cart from "../models/cart.model.js";
+import MenuItem from "../models/menuItem.model.js";
 
 export const getCart = async (req, res) => {
   try {
     let cart = await Cart.findOne({ user: req.userId }).populate(
-      'items.menuItem',
-      'name price imageUrl isAvailable'
+      "items.menuItem",
+      "name price imageUrl isAvailable",
     );
 
     if (!cart) {
       cart = await Cart.create({
         user: req.userId,
         items: [],
-        totalAmount: 0
+        totalAmount: 0,
       });
     }
 
     res.status(200).json({
       success: true,
-      data: cart
+      data: cart,
     });
   } catch (error) {
-    console.error('Get cart error:', error);
+    console.error("Get cart error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch cart',
-      error: error?.message
+      message: "Failed to fetch cart",
+      error: error?.message,
     });
   }
 };
@@ -37,7 +37,7 @@ export const addToCart = async (req, res) => {
     if (!menuItemId) {
       res.status(400).json({
         success: false,
-        message: 'Please provide menu item ID'
+        message: "Please provide menu item ID",
       });
       return;
     }
@@ -45,7 +45,7 @@ export const addToCart = async (req, res) => {
     if (quantity < 1 || quantity > 10) {
       res.status(400).json({
         success: false,
-        message: 'Quantity must be between 1 and 10'
+        message: "Quantity must be between 1 and 10",
       });
       return;
     }
@@ -55,7 +55,7 @@ export const addToCart = async (req, res) => {
     if (!menuItem) {
       res.status(404).json({
         success: false,
-        message: 'Menu item not found'
+        message: "Menu item not found",
       });
       return;
     }
@@ -63,7 +63,7 @@ export const addToCart = async (req, res) => {
     if (!menuItem.isAvailable) {
       res.status(400).json({
         success: false,
-        message: 'This item is currently unavailable'
+        message: "This item is currently unavailable",
       });
       return;
     }
@@ -74,11 +74,13 @@ export const addToCart = async (req, res) => {
       cart = new Cart({
         user: req.userId,
         items: [],
-        totalAmount: 0
+        totalAmount: 0,
       });
     }
 
-    const existingItemIndex = cart.items.findIndex((item) => item.menuItem.toString() === menuItemId);
+    const existingItemIndex = cart.items.findIndex(
+      (item) => item.menuItem.toString() === menuItemId,
+    );
 
     if (existingItemIndex > -1) {
       const newQuantity = cart.items[existingItemIndex].quantity + quantity;
@@ -86,7 +88,7 @@ export const addToCart = async (req, res) => {
       if (newQuantity > 10) {
         res.status(400).json({
           success: false,
-          message: 'Maximum quantity per item is 10'
+          message: "Maximum quantity per item is 10",
         });
         return;
       }
@@ -99,24 +101,24 @@ export const addToCart = async (req, res) => {
         name: menuItem.name,
         price: menuItem.price,
         quantity,
-        subtotal: quantity * menuItem.price
+        subtotal: quantity * menuItem.price,
       });
     }
 
     await cart.save();
-    await cart.populate('items.menuItem', 'name price imageUrl isAvailable');
+    await cart.populate("items.menuItem", "name price imageUrl isAvailable");
 
     res.status(200).json({
       success: true,
-      message: 'Item added to cart',
-      data: cart
+      message: "Item added to cart",
+      data: cart,
     });
   } catch (error) {
-    console.error('Add to cart error:', error);
+    console.error("Add to cart error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to add item to cart',
-      error: error?.message
+      message: "Failed to add item to cart",
+      error: error?.message,
     });
   }
 };
@@ -129,7 +131,7 @@ export const updateCartItem = async (req, res) => {
     if (quantity === undefined || quantity < 0 || quantity > 10) {
       res.status(400).json({
         success: false,
-        message: 'Quantity must be between 0 and 10'
+        message: "Quantity must be between 0 and 10",
       });
       return;
     }
@@ -139,17 +141,19 @@ export const updateCartItem = async (req, res) => {
     if (!cart) {
       res.status(404).json({
         success: false,
-        message: 'Cart not found'
+        message: "Cart not found",
       });
       return;
     }
 
-    const itemIndex = cart.items.findIndex((item) => item.menuItem.toString() === menuItemId);
+    const itemIndex = cart.items.findIndex(
+      (item) => item.menuItem.toString() === menuItemId,
+    );
 
     if (itemIndex === -1) {
       res.status(404).json({
         success: false,
-        message: 'Item not found in cart'
+        message: "Item not found in cart",
       });
       return;
     }
@@ -162,19 +166,19 @@ export const updateCartItem = async (req, res) => {
     }
 
     await cart.save();
-    await cart.populate('items.menuItem', 'name price imageUrl isAvailable');
+    await cart.populate("items.menuItem", "name price imageUrl isAvailable");
 
     res.status(200).json({
       success: true,
-      message: 'Cart updated',
-      data: cart
+      message: "Cart updated",
+      data: cart,
     });
   } catch (error) {
-    console.error('Update cart item error:', error);
+    console.error("Update cart item error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to update cart item',
-      error: error?.message
+      message: "Failed to update cart item",
+      error: error?.message,
     });
   }
 };
@@ -188,27 +192,29 @@ export const removeFromCart = async (req, res) => {
     if (!cart) {
       res.status(404).json({
         success: false,
-        message: 'Cart not found'
+        message: "Cart not found",
       });
       return;
     }
 
-    cart.items = cart.items.filter((item) => item.menuItem.toString() !== menuItemId);
+    cart.items = cart.items.filter(
+      (item) => item.menuItem.toString() !== menuItemId,
+    );
 
     await cart.save();
-    await cart.populate('items.menuItem', 'name price imageUrl isAvailable');
+    await cart.populate("items.menuItem", "name price imageUrl isAvailable");
 
     res.status(200).json({
       success: true,
-      message: 'Item removed from cart',
-      data: cart
+      message: "Item removed from cart",
+      data: cart,
     });
   } catch (error) {
-    console.error('Remove from cart error:', error);
+    console.error("Remove from cart error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to remove item from cart',
-      error: error?.message
+      message: "Failed to remove item from cart",
+      error: error?.message,
     });
   }
 };
@@ -220,7 +226,7 @@ export const clearCart = async (req, res) => {
     if (!cart) {
       res.status(404).json({
         success: false,
-        message: 'Cart not found'
+        message: "Cart not found",
       });
       return;
     }
@@ -231,15 +237,15 @@ export const clearCart = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: 'Cart cleared',
-      data: cart
+      message: "Cart cleared",
+      data: cart,
     });
   } catch (error) {
-    console.error('Clear cart error:', error);
+    console.error("Clear cart error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to clear cart',
-      error: error?.message
+      message: "Failed to clear cart",
+      error: error?.message,
     });
   }
 };

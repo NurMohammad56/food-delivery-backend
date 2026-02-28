@@ -1,14 +1,9 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import connectDB from "./config/database.js";
+import connectDB from "../src/config/database.config.js";
 
-import authRoutes from "./routes/authRoutes.js";
-import menuRoutes from "./routes/menuRoutes.js";
-import cartRoutes from "./routes/cartRoutes.js";
-import orderRoutes from "./routes/orderRoutes.js";
-import adminRoutes from "./routes/adminRoutes.js";
-import userRoutes from "./routes/userRoutes.js";
+import router from "../src/mainRoutes/index.js";
 
 dotenv.config();
 
@@ -27,27 +22,7 @@ if (process.env.NODE_ENV === "development") {
   });
 }
 
-app.get("/health", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "Server is running",
-    timestamp: new Date().toISOString(),
-  });
-});
-
-app.use("/api/auth", authRoutes);
-app.use("/api/menu", menuRoutes);
-app.use("/api/cart", cartRoutes);
-app.use("/api/orders", orderRoutes);
-app.use("/api/admin", adminRoutes);
-app.use("/api/users", userRoutes);
-
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: "Route not found",
-  });
-});
+app.use("/api/v1", router);
 
 app.use((err, req, res, next) => {
   console.error("Error:", err);

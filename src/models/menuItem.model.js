@@ -29,12 +29,12 @@ const menuItemSchema = new Schema(
       min: [0, "Price cannot be negative"],
     },
     imageUrl: {
-      public_id: {
-        type: String,
-      },
-      url: {
-        type: String,
-      },
+      type: String,
+      default: null
+    },
+    imagePublicId: {
+      type: String,
+      default: null
     },
     isAvailable: {
       type: Boolean,

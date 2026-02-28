@@ -1,7 +1,11 @@
-import User from '../models/User.js';
-import { generateToken } from '../utils/jwt.js';
-import { generateResetToken, hashResetToken, getResetTokenExpiry } from '../utils/resetToken.js';
-import { sendPasswordResetEmail } from '../utils/email.js';
+import User from "../models/user.model.js";
+import { generateToken } from "../utils/jwt.js";
+import {
+  generateResetToken,
+  hashResetToken,
+  getResetTokenExpiry,
+} from "../utils/resetToken.js";
+import { sendPasswordResetEmail } from "../utils/email.js";
 
 export const register = async (req, res) => {
   try {
@@ -10,20 +14,20 @@ export const register = async (req, res) => {
     if (!name || !email || !studentId || !phone || !password) {
       res.status(400).json({
         success: false,
-        message: 'Please provide all required fields'
+        message: "Please provide all required fields",
       });
       return;
     }
 
     const existingUser = await User.findOne({
-      $or: [{ email }, { studentId }]
+      $or: [{ email }, { studentId }],
     });
 
     if (existingUser) {
-      const field = existingUser.email === email ? 'Email' : 'Student ID';
+      const field = existingUser.email === email ? "Email" : "Student ID";
       res.status(400).json({
         success: false,
-        message: `${field} already registered`
+        message: `${field} already registered`,
       });
       return;
     }
@@ -34,18 +38,18 @@ export const register = async (req, res) => {
       studentId,
       phone,
       password,
-      role: 'student'
+      role: "student",
     });
 
     const token = generateToken({
       userId: user._id.toString(),
       email: user.email,
-      role: user.role
+      role: user.role,
     });
 
     res.status(201).json({
       success: true,
-      message: 'Registration successful',
+      message: "Registration successful",
       data: {
         token,
         user: {
@@ -54,16 +58,16 @@ export const register = async (req, res) => {
           email: user.email,
           studentId: user.studentId,
           phone: user.phone,
-          role: user.role
-        }
-      }
+          role: user.role,
+        },
+      },
     });
   } catch (error) {
-    console.error('Registration error:', error);
+    console.error("Registration error:", error);
     res.status(500).json({
       success: false,
-      message: 'Registration failed',
-      error: error?.message
+      message: "Registration failed",
+      error: error?.message,
     });
   }
 };
@@ -75,17 +79,17 @@ export const login = async (req, res) => {
     if (!email || !password) {
       res.status(400).json({
         success: false,
-        message: 'Please provide email and password'
+        message: "Please provide email and password",
       });
       return;
     }
 
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
       res.status(401).json({
         success: false,
-        message: 'Invalid credentials'
+        message: "Invalid credentials",
       });
       return;
     }
@@ -95,7 +99,7 @@ export const login = async (req, res) => {
     if (!isPasswordCorrect) {
       res.status(401).json({
         success: false,
-        message: 'Invalid credentials'
+        message: "Invalid credentials",
       });
       return;
     }
@@ -103,12 +107,12 @@ export const login = async (req, res) => {
     const token = generateToken({
       userId: user._id.toString(),
       email: user.email,
-      role: user.role
+      role: user.role,
     });
 
     res.status(200).json({
       success: true,
-      message: 'Login successful',
+      message: "Login successful",
       data: {
         token,
         user: {
@@ -117,16 +121,16 @@ export const login = async (req, res) => {
           email: user.email,
           studentId: user.studentId,
           phone: user.phone,
-          role: user.role
-        }
-      }
+          role: user.role,
+        },
+      },
     });
   } catch (error) {
-    console.error('Login error:', error);
+    console.error("Login error:", error);
     res.status(500).json({
       success: false,
-      message: 'Login failed',
-      error: error?.message
+      message: "Login failed",
+      error: error?.message,
     });
   }
 };
@@ -138,17 +142,19 @@ export const forgotPassword = async (req, res) => {
     if (!email) {
       res.status(400).json({
         success: false,
-        message: 'Please provide email address'
+        message: "Please provide email address",
       });
       return;
     }
 
-    const user = await User.findOne({ email }).select('+resetPasswordToken +resetPasswordExpire');
+    const user = await User.findOne({ email }).select(
+      "+resetPasswordToken +resetPasswordExpire",
+    );
 
     if (!user) {
       res.status(404).json({
         success: false,
-        message: 'No user found with that email'
+        message: "No user found with that email",
       });
       return;
     }
@@ -165,7 +171,7 @@ export const forgotPassword = async (req, res) => {
 
       res.status(200).json({
         success: true,
-        message: 'Password reset email sent successfully'
+        message: "Password reset email sent successfully",
       });
     } catch (emailError) {
       user.resetPasswordToken = undefined;
@@ -174,15 +180,15 @@ export const forgotPassword = async (req, res) => {
 
       res.status(500).json({
         success: false,
-        message: 'Email could not be sent. Please try again later.'
+        message: "Email could not be sent. Please try again later.",
       });
     }
   } catch (error) {
-    console.error('Forgot password error:', error);
+    console.error("Forgot password error:", error);
     res.status(500).json({
       success: false,
-      message: 'Password reset request failed',
-      error: error?.message
+      message: "Password reset request failed",
+      error: error?.message,
     });
   }
 };
@@ -195,7 +201,7 @@ export const resetPassword = async (req, res) => {
     if (!password) {
       res.status(400).json({
         success: false,
-        message: 'Please provide new password'
+        message: "Please provide new password",
       });
       return;
     }
@@ -204,13 +210,13 @@ export const resetPassword = async (req, res) => {
 
     const user = await User.findOne({
       resetPasswordToken: hashedToken,
-      resetPasswordExpire: { $gt: Date.now() }
-    }).select('+resetPasswordToken +resetPasswordExpire');
+      resetPasswordExpire: { $gt: Date.now() },
+    }).select("+resetPasswordToken +resetPasswordExpire");
 
     if (!user) {
       res.status(400).json({
         success: false,
-        message: 'Invalid or expired reset token'
+        message: "Invalid or expired reset token",
       });
       return;
     }
@@ -223,22 +229,22 @@ export const resetPassword = async (req, res) => {
     const token = generateToken({
       userId: user._id.toString(),
       email: user.email,
-      role: user.role
+      role: user.role,
     });
 
     res.status(200).json({
       success: true,
-      message: 'Password reset successful',
+      message: "Password reset successful",
       data: {
-        token
-      }
+        token,
+      },
     });
   } catch (error) {
-    console.error('Reset password error:', error);
+    console.error("Reset password error:", error);
     res.status(500).json({
       success: false,
-      message: 'Password reset failed',
-      error: error?.message
+      message: "Password reset failed",
+      error: error?.message,
     });
   }
 };
@@ -250,7 +256,7 @@ export const getMe = async (req, res) => {
     if (!user) {
       res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: "User not found",
       });
       return;
     }
@@ -264,16 +270,16 @@ export const getMe = async (req, res) => {
           email: user.email,
           studentId: user.studentId,
           phone: user.phone,
-          role: user.role
-        }
-      }
+          role: user.role,
+        },
+      },
     });
   } catch (error) {
-    console.error('Get user error:', error);
+    console.error("Get user error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to get user data',
-      error: error?.message
+      message: "Failed to get user data",
+      error: error?.message,
     });
   }
 };

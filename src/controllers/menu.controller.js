@@ -1,5 +1,5 @@
-import MenuItem from '../models/MenuItem.js';
-import Category from '../models/Category.js';
+import MenuItem from "../models/menuItem.model.js";
+import Category from "../models/category.model.js";
 
 export const getMenuItems = async (req, res) => {
   try {
@@ -10,7 +10,7 @@ export const getMenuItems = async (req, res) => {
       isAvailable,
       search,
       page = 1,
-      limit = 20
+      limit = 20,
     } = req.query;
 
     const query = {};
@@ -26,13 +26,13 @@ export const getMenuItems = async (req, res) => {
     }
 
     if (isAvailable !== undefined) {
-      query.isAvailable = isAvailable === 'true';
+      query.isAvailable = isAvailable === "true";
     }
 
     if (search) {
       query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } }
+        { name: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
       ];
     }
 
@@ -41,7 +41,7 @@ export const getMenuItems = async (req, res) => {
     const skip = (pageNum - 1) * limitNum;
 
     const menuItems = await MenuItem.find(query)
-      .populate('category', 'name')
+      .populate("category", "name")
       .limit(limitNum)
       .skip(skip)
       .sort({ name: 1 });
@@ -54,40 +54,43 @@ export const getMenuItems = async (req, res) => {
       total,
       page: pageNum,
       pages: Math.ceil(total / limitNum),
-      data: menuItems
+      data: menuItems,
     });
   } catch (error) {
-    console.error('Get menu items error:', error);
+    console.error("Get menu items error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch menu items',
-      error: error?.message
+      message: "Failed to fetch menu items",
+      error: error?.message,
     });
   }
 };
 
 export const getMenuItem = async (req, res) => {
   try {
-    const menuItem = await MenuItem.findById(req.params.id).populate('category', 'name description');
+    const menuItem = await MenuItem.findById(req.params.id).populate(
+      "category",
+      "name description",
+    );
 
     if (!menuItem) {
       res.status(404).json({
         success: false,
-        message: 'Menu item not found'
+        message: "Menu item not found",
       });
       return;
     }
 
     res.status(200).json({
       success: true,
-      data: menuItem
+      data: menuItem,
     });
   } catch (error) {
-    console.error('Get menu item error:', error);
+    console.error("Get menu item error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch menu item',
-      error: error?.message
+      message: "Failed to fetch menu item",
+      error: error?.message,
     });
   }
 };
@@ -99,14 +102,14 @@ export const getCategories = async (req, res) => {
     res.status(200).json({
       success: true,
       count: categories.length,
-      data: categories
+      data: categories,
     });
   } catch (error) {
-    console.error('Get categories error:', error);
+    console.error("Get categories error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch categories',
-      error: error?.message
+      message: "Failed to fetch categories",
+      error: error?.message,
     });
   }
 };
@@ -118,7 +121,7 @@ export const searchMenuItems = async (req, res) => {
     if (!q) {
       res.status(400).json({
         success: false,
-        message: 'Please provide search query'
+        message: "Please provide search query",
       });
       return;
     }
@@ -127,25 +130,25 @@ export const searchMenuItems = async (req, res) => {
 
     const menuItems = await MenuItem.find({
       $or: [
-        { name: { $regex: queryText, $options: 'i' } },
-        { description: { $regex: queryText, $options: 'i' } }
+        { name: { $regex: queryText, $options: "i" } },
+        { description: { $regex: queryText, $options: "i" } },
       ],
-      isAvailable: true
+      isAvailable: true,
     })
-      .populate('category', 'name')
+      .populate("category", "name")
       .limit(10);
 
     res.status(200).json({
       success: true,
       count: menuItems.length,
-      data: menuItems
+      data: menuItems,
     });
   } catch (error) {
-    console.error('Search menu items error:', error);
+    console.error("Search menu items error:", error);
     res.status(500).json({
       success: false,
-      message: 'Search failed',
-      error: error?.message
+      message: "Search failed",
+      error: error?.message,
     });
   }
 };

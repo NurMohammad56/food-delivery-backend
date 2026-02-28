@@ -36,12 +36,12 @@ const userSchema = new Schema(
       trim: true,
     },
     avatar: {
-      public_id: {
-        type: String,
-      },
-      url: {
-        type: String,
-      },
+      type: String,
+      default: null
+    },
+    avatarPublicId: {
+      type: String,
+      default: null
     },
     password: {
       type: String,
