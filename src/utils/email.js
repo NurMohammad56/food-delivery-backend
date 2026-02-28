@@ -1,14 +1,14 @@
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
 
 const createTransporter = () => {
   return nodemailer.createTransport({
-    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.EMAIL_PORT || '587', 10),
+    host: process.env.EMAIL_HOST || "smtp.gmail.com",
+    port: parseInt(process.env.EMAIL_PORT || "587", 10),
     secure: false,
     auth: {
       user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASSWORD
-    }
+      pass: process.env.EMAIL_PASSWORD,
+    },
   });
 };
 
@@ -17,18 +17,18 @@ export const sendEmail = async (options) => {
     const transporter = createTransporter();
 
     const mailOptions = {
-      from: process.env.EMAIL_FROM || 'NUB Food Delivery <noreply@nubfood.com>',
+      from: process.env.EMAIL_FROM || "NUB Food Delivery <noreply@nubfood.com>",
       to: options.email,
       subject: options.subject,
       text: options.message,
-      html: options.html || options.message
+      html: options.html || options.message,
     };
 
     await transporter.sendMail(mailOptions);
     console.log(`Email sent to ${options.email}`);
   } catch (error) {
     console.error(`Email sending failed: ${error}`);
-    throw new Error('Email could not be sent');
+    throw new Error("Email could not be sent");
   }
 };
 
@@ -80,13 +80,18 @@ export const sendPasswordResetEmail = async (email, name, resetToken) => {
 
   await sendEmail({
     email,
-    subject: 'Password Reset Request - NUB Food Delivery',
+    subject: "Password Reset Request - NUB Food Delivery",
     message,
-    html
+    html,
   });
 };
 
-export const sendOrderConfirmationEmail = async (email, name, orderId, orderDetails) => {
+export const sendOrderConfirmationEmail = async (
+  email,
+  name,
+  orderId,
+  orderDetails,
+) => {
   const message = `
     Hi ${name},
 
@@ -105,6 +110,56 @@ export const sendOrderConfirmationEmail = async (email, name, orderId, orderDeta
   await sendEmail({
     email,
     subject: `Order Confirmation - ${orderId}`,
-    message
+    message,
+  });
+};
+
+// Send order status update email
+export const sendOrderStatusUpdateEmail = async (
+  email,
+  name,
+  orderId,
+  status,
+) => {
+  const statusMessages = {
+    Preparing: "is being prepared",
+    Ready: "is ready for pickup!",
+    Completed: "has been completed",
+    Cancelled: "has been cancelled",
+  };
+
+  const message = `
+    Hi ${name},
+    
+    Your order #${orderId} ${statusMessages[status] || "status has been updated"}.
+    
+    ${status === "Ready" ? "Please come to the canteen to collect your order." : ""}
+    
+    Thank you for your order!
+    
+    Best regards,
+    NUB Food Delivery Team
+  `;
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #2E75B6;">Order Status Update</h2>
+      <p>Hi ${name},</p>
+      <p>Your order <strong>#${orderId}</strong> ${statusMessages[status] || "status has been updated"}.</p>
+      ${status === "Ready" ? '<p style="color: #2E75B6; font-weight: bold;">Please come to the canteen to collect your order.</p>' : ""}
+      <p>Thank you for your order!</p>
+      <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+      <p style="color: #999; font-size: 12px;">
+        NUB Food Delivery Team<br>
+        Northern University Bangladesh
+      </p>
+    </div>
+  `;
+
+  await sendEmail({
+    email,
+    subject: `Order Update - ${orderId}`,
+    message,
+    html,
   });
 };
