@@ -1,22 +1,9 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
-export interface IUser extends Document {
-  name: string;
-  email: string;
-  studentId: string;
-  phone: string;
-  password: string;
-  role: 'student' | 'admin';
-  isVerified: boolean;
-  resetPasswordToken?: string;
-  resetPasswordExpire?: Date;
-  createdAt: Date;
-  updatedAt: Date;
-  comparePassword(candidatePassword: string): Promise<boolean>;
-}
+const { Schema } = mongoose;
 
-const userSchema = new Schema<IUser>(
+const userSchema = new Schema(
   {
     name: {
       type: String,
@@ -30,10 +17,7 @@ const userSchema = new Schema<IUser>(
       unique: true,
       lowercase: true,
       trim: true,
-      match: [
-        /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-        'Please provide a valid email address'
-      ]
+      match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Please provide a valid email address']
     },
     studentId: {
       type: String,
@@ -50,7 +34,7 @@ const userSchema = new Schema<IUser>(
       type: String,
       required: [true, 'Please provide a password'],
       minlength: [8, 'Password must be at least 8 characters'],
-      select: false // Don't include password in query results by default
+      select: false
     },
     role: {
       type: String,
@@ -75,9 +59,7 @@ const userSchema = new Schema<IUser>(
   }
 );
 
-// Hash password before saving
 userSchema.pre('save', async function (next) {
-  // Only hash if password is modified
   if (!this.isModified('password')) {
     return next();
   }
@@ -86,22 +68,18 @@ userSchema.pre('save', async function (next) {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
     next();
-  } catch (error: any) {
+  } catch (error) {
     next(error);
   }
 });
 
-// Method to compare passwords
-userSchema.methods.comparePassword = async function (
-  candidatePassword: string
-): Promise<boolean> {
-  return await bcrypt.compare(candidatePassword, this.password);
+userSchema.methods.comparePassword = async function (candidatePassword) {
+  return bcrypt.compare(candidatePassword, this.password);
 };
 
-// Indexes for performance
 userSchema.index({ email: 1 });
 userSchema.index({ studentId: 1 });
 
-const User = mongoose.model<IUser>('User', userSchema);
+const User = mongoose.model('User', userSchema);
 
 export default User;

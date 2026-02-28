@@ -1,14 +1,8 @@
 import express from 'express';
-import {
-  getMenuItems,
-  getMenuItem,
-  getCategories,
-  searchMenuItems
-} from '../controllers/menuController';
+import { getMenuItems, getMenuItem, getCategories, searchMenuItems } from '../controllers/menuController.js';
 
 const router = express.Router();
 
-// Public routes
 router.get('/', getMenuItems);
 router.get('/search', searchMenuItems);
 router.get('/categories', getCategories);

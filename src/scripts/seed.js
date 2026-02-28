@@ -1,27 +1,22 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import User from '../models/User';
-import Category from '../models/Category';
-import MenuItem from '../models/MenuItem';
+import User from '../models/User.js';
+import Category from '../models/Category.js';
+import MenuItem from '../models/MenuItem.js';
 
 dotenv.config();
 
 const seedData = async () => {
   try {
-    // Connect to database
-    await mongoose.connect(
-      process.env.MONGODB_URI || 'mongodb://localhost:27017/nub_food_delivery'
-    );
-    console.log('✓ Connected to MongoDB');
+    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/nub_food_delivery');
+    console.log('Connected to MongoDB');
 
-    // Clear existing data
     await User.deleteMany({});
     await Category.deleteMany({});
     await MenuItem.deleteMany({});
-    console.log('✓ Cleared existing data');
+    console.log('Cleared existing data');
 
-    // Create admin user
-    const adminUser = await User.create({
+    await User.create({
       name: 'Admin User',
       email: 'admin@nub.edu',
       studentId: 'ADMIN001',
@@ -30,10 +25,9 @@ const seedData = async () => {
       role: 'admin',
       isVerified: true
     });
-    console.log('✓ Created admin user');
+    console.log('Created admin user');
 
-    // Create test student user
-    const studentUser = await User.create({
+    await User.create({
       name: 'Nur Mohammad',
       email: 'nur@student.nub.edu',
       studentId: '42230301051',
@@ -42,9 +36,8 @@ const seedData = async () => {
       role: 'student',
       isVerified: true
     });
-    console.log('✓ Created student user');
+    console.log('Created student user');
 
-    // Create categories
     const categories = await Category.insertMany([
       {
         name: 'Breakfast',
@@ -67,11 +60,9 @@ const seedData = async () => {
         description: 'Sweet treats and desserts'
       }
     ]);
-    console.log(`✓ Created ${categories.length} categories`);
+    console.log(`Created ${categories.length} categories`);
 
-    // Create menu items
     const menuItems = await MenuItem.insertMany([
-      // Breakfast
       {
         name: 'Paratha with Egg',
         description: 'Traditional paratha with fried egg',
@@ -96,8 +87,6 @@ const seedData = async () => {
         isAvailable: true,
         preparationTime: 8
       },
-
-      // Lunch
       {
         name: 'Chicken Fried Rice',
         description: 'Flavorful fried rice with chicken pieces',
@@ -130,8 +119,6 @@ const seedData = async () => {
         isAvailable: true,
         preparationTime: 12
       },
-
-      // Snacks
       {
         name: 'French Fries',
         description: 'Crispy golden french fries',
@@ -156,8 +143,6 @@ const seedData = async () => {
         isAvailable: true,
         preparationTime: 10
       },
-
-      // Beverages
       {
         name: 'Mango Juice',
         description: 'Fresh mango juice',
@@ -190,8 +175,6 @@ const seedData = async () => {
         isAvailable: true,
         preparationTime: 5
       },
-
-      // Desserts
       {
         name: 'Chocolate Cake Slice',
         description: 'Rich chocolate cake',
@@ -217,24 +200,24 @@ const seedData = async () => {
         preparationTime: 2
       }
     ]);
-    console.log(`✓ Created ${menuItems.length} menu items`);
+    console.log(`Created ${menuItems.length} menu items`);
 
     console.log('\n' + '='.repeat(50));
-    console.log('✓ Database seeding completed successfully!');
+    console.log('Database seeding completed successfully');
     console.log('='.repeat(50));
     console.log('\nTest Users Created:');
-    console.log(`\nAdmin:`);
-    console.log(`  Email: admin@nub.edu`);
-    console.log(`  Password: Admin123!`);
-    console.log(`\nStudent:`);
-    console.log(`  Email: nur@student.nub.edu`);
-    console.log(`  Password: Student123!`);
-    console.log(`  Student ID: 42230301051`);
+    console.log('\nAdmin:');
+    console.log('  Email: admin@nub.edu');
+    console.log('  Password: Admin123!');
+    console.log('\nStudent:');
+    console.log('  Email: nur@student.nub.edu');
+    console.log('  Password: Student123!');
+    console.log('  Student ID: 42230301051');
     console.log('\n' + '='.repeat(50));
 
     process.exit(0);
   } catch (error) {
-    console.error('✗ Seeding failed:', error);
+    console.error('Seeding failed:', error);
     process.exit(1);
   }
 };

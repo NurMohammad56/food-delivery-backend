@@ -1,34 +1,14 @@
-import { Request, Response, NextFunction } from 'express';
-import { verifyToken, JWTPayload } from '../utils/jwt';
-import User, { IUser } from '../models/User';
+import { verifyToken } from '../utils/jwt.js';
+import User from '../models/User.js';
 
-// Extend Express Request to include user
-declare global {
-  namespace Express {
-    interface Request {
-      user?: IUser;
-      userId?: string;
-    }
-  }
-}
-
-export const protect = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+export const protect = async (req, res, next) => {
   try {
-    let token: string | undefined;
+    let token;
 
-    // Check for token in Authorization header
-    if (
-      req.headers.authorization &&
-      req.headers.authorization.startsWith('Bearer')
-    ) {
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
       token = req.headers.authorization.split(' ')[1];
     }
 
-    // Check if token exists
     if (!token) {
       res.status(401).json({
         success: false,
@@ -38,10 +18,7 @@ export const protect = async (
     }
 
     try {
-      // Verify token
-      const decoded: JWTPayload = verifyToken(token);
-
-      // Get user from database
+      const decoded = verifyToken(token);
       const user = await User.findById(decoded.userId);
 
       if (!user) {
@@ -52,7 +29,6 @@ export const protect = async (
         return;
       }
 
-      // Attach user to request
       req.user = user;
       req.userId = user._id.toString();
 
@@ -62,7 +38,6 @@ export const protect = async (
         success: false,
         message: 'Invalid or expired token'
       });
-      return;
     }
   } catch (error) {
     res.status(500).json({
@@ -72,9 +47,8 @@ export const protect = async (
   }
 };
 
-// Middleware to restrict routes to specific roles
-export const authorize = (...roles: string[]) => {
-  return (req: Request, res: Response, next: NextFunction): void => {
+export const authorize = (...roles) => {
+  return (req, res, next) => {
     if (!req.user) {
       res.status(401).json({
         success: false,

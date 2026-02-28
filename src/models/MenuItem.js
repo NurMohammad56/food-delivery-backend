@@ -1,18 +1,8 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose from 'mongoose';
 
-export interface IMenuItem extends Document {
-  name: string;
-  description: string;
-  category: string;
-  price: number;
-  imageUrl?: string;
-  isAvailable: boolean;
-  preparationTime: number; // in minutes
-  createdAt: Date;
-  updatedAt: Date;
-}
+const { Schema } = mongoose;
 
-const menuItemSchema = new Schema<IMenuItem>(
+const menuItemSchema = new Schema(
   {
     name: {
       type: String,
@@ -55,12 +45,11 @@ const menuItemSchema = new Schema<IMenuItem>(
   }
 );
 
-// Indexes
 menuItemSchema.index({ name: 1 });
 menuItemSchema.index({ category: 1 });
 menuItemSchema.index({ isAvailable: 1 });
 menuItemSchema.index({ price: 1 });
 
-const MenuItem = mongoose.model<IMenuItem>('MenuItem', menuItemSchema);
+const MenuItem = mongoose.model('MenuItem', menuItemSchema);
 
 export default MenuItem;

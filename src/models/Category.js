@@ -1,13 +1,8 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose from 'mongoose';
 
-export interface ICategory extends Document {
-  name: string;
-  description?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+const { Schema } = mongoose;
 
-const categorySchema = new Schema<ICategory>(
+const categorySchema = new Schema(
   {
     name: {
       type: String,
@@ -27,9 +22,8 @@ const categorySchema = new Schema<ICategory>(
   }
 );
 
-// Index
 categorySchema.index({ name: 1 });
 
-const Category = mongoose.model<ICategory>('Category', categorySchema);
+const Category = mongoose.model('Category', categorySchema);
 
 export default Category;

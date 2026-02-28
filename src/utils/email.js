@@ -1,64 +1,52 @@
-import nodemailer from "nodemailer";
+import nodemailer from 'nodemailer';
 
-// Create transporter
 const createTransporter = () => {
   return nodemailer.createTransport({
-    host: process.env.EMAIL_HOST || "smtp.gmail.com",
-    port: parseInt(process.env.EMAIL_PORT || "587"),
-    secure: false, // true for 465, false for other ports
+    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.EMAIL_PORT || '587', 10),
+    secure: false,
     auth: {
       user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASSWORD,
-    },
+      pass: process.env.EMAIL_PASSWORD
+    }
   });
 };
 
-// Send email function
-export const sendEmail = async (options: {
-  email: string;
-  subject: string;
-  message: string;
-  html?: string;
-}): Promise<void> => {
+export const sendEmail = async (options) => {
   try {
     const transporter = createTransporter();
 
     const mailOptions = {
-      from: process.env.EMAIL_FROM || "NUB Food Delivery <noreply@nubfood.com>",
+      from: process.env.EMAIL_FROM || 'NUB Food Delivery <noreply@nubfood.com>',
       to: options.email,
       subject: options.subject,
       text: options.message,
-      html: options.html || options.message,
+      html: options.html || options.message
     };
 
     await transporter.sendMail(mailOptions);
-    console.log(`✓ Email sent to ${options.email}`);
+    console.log(`Email sent to ${options.email}`);
   } catch (error) {
-    console.error(`✗ Email sending failed: ${error}`);
-    throw new Error("Email could not be sent");
+    console.error(`Email sending failed: ${error}`);
+    throw new Error('Email could not be sent');
   }
 };
 
-// Send password reset email
-export const sendPasswordResetEmail = async (
-  email: string,
-  name: string,
-  resetToken: string,
-): Promise<void> => {
+export const sendPasswordResetEmail = async (email, name, resetToken) => {
   const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
 
   const message = `
     Hi ${name},
-    
+
     You requested a password reset for your NUB Food Delivery account.
-    
+
     Please click the link below to reset your password:
     ${resetUrl}
-    
+
     This link will expire in 1 hour.
-    
+
     If you didn't request this, please ignore this email.
-    
+
     Best regards,
     NUB Food Delivery Team
   `;
@@ -70,8 +58,8 @@ export const sendPasswordResetEmail = async (
       <p>You requested a password reset for your NUB Food Delivery account.</p>
       <p>Please click the button below to reset your password:</p>
       <div style="text-align: center; margin: 30px 0;">
-        <a href="${resetUrl}" 
-           style="background-color: #2E75B6; color: white; padding: 12px 30px; 
+        <a href="${resetUrl}"
+           style="background-color: #2E75B6; color: white; padding: 12px 30px;
                   text-decoration: none; border-radius: 5px; display: inline-block;">
           Reset Password
         </a>
@@ -92,30 +80,24 @@ export const sendPasswordResetEmail = async (
 
   await sendEmail({
     email,
-    subject: "Password Reset Request - NUB Food Delivery",
+    subject: 'Password Reset Request - NUB Food Delivery',
     message,
-    html,
+    html
   });
 };
 
-// Send order confirmation email
-export const sendOrderConfirmationEmail = async (
-  email: string,
-  name: string,
-  orderId: string,
-  orderDetails: any,
-): Promise<void> => {
+export const sendOrderConfirmationEmail = async (email, name, orderId, orderDetails) => {
   const message = `
     Hi ${name},
-    
+
     Your order has been confirmed!
-    
+
     Order ID: ${orderId}
     Total Amount: BDT ${orderDetails.totalAmount}
     Estimated Ready Time: ${orderDetails.estimatedReadyTime}
-    
+
     Thank you for your order!
-    
+
     Best regards,
     NUB Food Delivery Team
   `;
@@ -123,6 +105,6 @@ export const sendOrderConfirmationEmail = async (
   await sendEmail({
     email,
     subject: `Order Confirmation - ${orderId}`,
-    message,
+    message
   });
 };

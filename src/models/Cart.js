@@ -1,22 +1,8 @@
-import mongoose, { Document, Schema, Types } from 'mongoose';
+import mongoose from 'mongoose';
 
-export interface ICartItem {
-  menuItem: Types.ObjectId;
-  name: string;
-  price: number;
-  quantity: number;
-  subtotal: number;
-}
+const { Schema } = mongoose;
 
-export interface ICart extends Document {
-  user: Types.ObjectId;
-  items: ICartItem[];
-  totalAmount: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-const cartItemSchema = new Schema<ICartItem>(
+const cartItemSchema = new Schema(
   {
     menuItem: {
       type: Schema.Types.ObjectId,
@@ -47,13 +33,13 @@ const cartItemSchema = new Schema<ICartItem>(
   { _id: false }
 );
 
-const cartSchema = new Schema<ICart>(
+const cartSchema = new Schema(
   {
     user: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: [true, 'Cart must belong to a user'],
-      unique: true // One cart per user
+      unique: true
     },
     items: {
       type: [cartItemSchema],
@@ -70,15 +56,13 @@ const cartSchema = new Schema<ICart>(
   }
 );
 
-// Index
 cartSchema.index({ user: 1 });
 
-// Calculate total before saving
 cartSchema.pre('save', function (next) {
   this.totalAmount = this.items.reduce((total, item) => total + item.subtotal, 0);
   next();
 });
 
-const Cart = mongoose.model<ICart>('Cart', cartSchema);
+const Cart = mongoose.model('Cart', cartSchema);
 
 export default Cart;

@@ -1,6 +1,6 @@
 # NUB Campus Food Delivery System - Backend API
 
-Backend REST API for the NUB Campus Food Delivery System built with Node.js, Express, TypeScript, and MongoDB.
+Backend REST API for the NUB Campus Food Delivery System built with Node.js, Express, JavaScript, and MongoDB.
 
 ## 📋 Table of Contents
 
@@ -21,7 +21,7 @@ Backend REST API for the NUB Campus Food Delivery System built with Node.js, Exp
 - ✅ Menu browsing with search and filters
 - ✅ Shopping cart management
 - ✅ MongoDB integration with Mongoose ODM
-- ✅ TypeScript for type safety
+- ✅ JavaScript for type safety
 - ✅ Password hashing with bcrypt
 - ✅ Email notifications with NodeMailer
 - ✅ Input validation
@@ -32,7 +32,7 @@ Backend REST API for the NUB Campus Food Delivery System built with Node.js, Exp
 
 - **Runtime:** Node.js (v18+)
 - **Framework:** Express.js
-- **Language:** TypeScript
+- **Language:** JavaScript
 - **Database:** MongoDB
 - **ODM:** Mongoose
 - **Authentication:** JWT (JSON Web Tokens)
@@ -375,39 +375,38 @@ Common HTTP Status Codes:
 food-delivery-backend/
 ├── src/
 │   ├── config/
-│   │   └── database.ts          # MongoDB connection
+│   │   └── database.js          # MongoDB connection
 │   ├── controllers/
-│   │   ├── authController.ts    # Authentication logic
-│   │   ├── menuController.ts    # Menu operations
-│   │   └── cartController.ts    # Cart operations
+│   │   ├── authController.js    # Authentication logic
+│   │   ├── menuController.js    # Menu operations
+│   │   └── cartController.js    # Cart operations
 │   ├── middleware/
-│   │   └── auth.ts             # JWT authentication middleware
+│   │   └── auth.js             # JWT authentication middleware
 │   ├── models/
-│   │   ├── User.ts             # User schema
-│   │   ├── MenuItem.ts         # Menu item schema
-│   │   ├── Category.ts         # Category schema
-│   │   ├── Order.ts            # Order schema
-│   │   └── Cart.ts             # Cart schema
+│   │   ├── User.js             # User schema
+│   │   ├── MenuItem.js         # Menu item schema
+│   │   ├── Category.js         # Category schema
+│   │   ├── Order.js            # Order schema
+│   │   └── Cart.js             # Cart schema
 │   ├── routes/
-│   │   ├── authRoutes.ts       # Auth endpoints
-│   │   ├── menuRoutes.ts       # Menu endpoints
-│   │   └── cartRoutes.ts       # Cart endpoints
+│   │   ├── authRoutes.js       # Auth endpoints
+│   │   ├── menuRoutes.js       # Menu endpoints
+│   │   └── cartRoutes.js       # Cart endpoints
 │   ├── utils/
-│   │   ├── jwt.ts              # JWT utilities
-│   │   ├── resetToken.ts       # Password reset tokens
-│   │   └── email.ts            # Email utilities
-│   └── server.ts               # Application entry point
+│   │   ├── jwt.js              # JWT utilities
+│   │   ├── resetToken.js       # Password reset tokens
+│   │   └── email.js            # Email utilities
+│   └── server.js               # Application entry point
 ├── .env.example                # Environment variables template
 ├── .gitignore
 ├── package.json
-├── tsconfig.json               # TypeScript configuration
 └── README.md
 ```
 
 ## 🗄 Database Schema
 
 ### User Collection
-```typescript
+```JavaScript
 {
   name: String (required),
   email: String (required, unique),
@@ -424,7 +423,7 @@ food-delivery-backend/
 ```
 
 ### MenuItem Collection
-```typescript
+```JavaScript
 {
   name: String (required),
   description: String (required),
@@ -439,7 +438,7 @@ food-delivery-backend/
 ```
 
 ### Category Collection
-```typescript
+```JavaScript
 {
   name: String (required, unique),
   description: String,
@@ -449,7 +448,7 @@ food-delivery-backend/
 ```
 
 ### Cart Collection
-```typescript
+```JavaScript
 {
   user: ObjectId (ref: User, unique),
   items: [
@@ -468,7 +467,7 @@ food-delivery-backend/
 ```
 
 ### Order Collection
-```typescript
+```JavaScript
 {
   user: ObjectId (ref: User),
   items: [
@@ -501,3 +500,4 @@ Northern University Bangladesh
 ## 📄 License
 
 This project is for academic purposes.
+

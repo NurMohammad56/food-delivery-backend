@@ -1,27 +1,8 @@
-import mongoose, { Document, Schema, Types } from 'mongoose';
+import mongoose from 'mongoose';
 
-export interface IOrderItem {
-  menuItem: Types.ObjectId;
-  name: string;
-  quantity: number;
-  price: number;
-  subtotal: number;
-}
+const { Schema } = mongoose;
 
-export interface IOrder extends Document {
-  user: Types.ObjectId;
-  items: IOrderItem[];
-  totalAmount: number;
-  status: 'Pending' | 'Preparing' | 'Ready' | 'Completed' | 'Cancelled';
-  specialInstructions?: string;
-  orderDate: Date;
-  estimatedReadyTime?: Date;
-  actualReadyTime?: Date;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-const orderItemSchema = new Schema<IOrderItem>(
+const orderItemSchema = new Schema(
   {
     menuItem: {
       type: Schema.Types.ObjectId,
@@ -52,7 +33,7 @@ const orderItemSchema = new Schema<IOrderItem>(
   { _id: false }
 );
 
-const orderSchema = new Schema<IOrder>(
+const orderSchema = new Schema(
   {
     user: {
       type: Schema.Types.ObjectId,
@@ -63,7 +44,7 @@ const orderSchema = new Schema<IOrder>(
       type: [orderItemSchema],
       required: [true, 'Order must have at least one item'],
       validate: {
-        validator: function (items: IOrderItem[]) {
+        validator(items) {
           return items.length > 0;
         },
         message: 'Order must have at least one item'
@@ -99,24 +80,21 @@ const orderSchema = new Schema<IOrder>(
   }
 );
 
-// Indexes for performance
 orderSchema.index({ user: 1, orderDate: -1 });
 orderSchema.index({ status: 1, orderDate: -1 });
 orderSchema.index({ orderDate: -1 });
 
-// Calculate estimated ready time before saving
 orderSchema.pre('save', function (next) {
   if (this.isNew && !this.estimatedReadyTime) {
-    // Calculate total preparation time
-    const totalPrepTime = this.items.reduce((total, item) => {
-      return Math.max(total, 15); // Assume 15 min minimum per item
+    const totalPrepTime = this.items.reduce((total) => {
+      return Math.max(total, 15);
     }, 0);
-    
+
     this.estimatedReadyTime = new Date(Date.now() + totalPrepTime * 60 * 1000);
   }
   next();
 });
 
-const Order = mongoose.model<IOrder>('Order', orderSchema);
+const Order = mongoose.model('Order', orderSchema);
 
 export default Order;

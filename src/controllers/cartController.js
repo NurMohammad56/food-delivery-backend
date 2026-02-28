@@ -1,18 +1,13 @@
-import { Request, Response } from 'express';
-import Cart from '../models/Cart';
-import MenuItem from '../models/MenuItem';
+import Cart from '../models/Cart.js';
+import MenuItem from '../models/MenuItem.js';
 
-// @desc    Get user's cart
-// @route   GET /api/cart
-// @access  Private
-export const getCart = async (req: Request, res: Response): Promise<void> => {
+export const getCart = async (req, res) => {
   try {
     let cart = await Cart.findOne({ user: req.userId }).populate(
       'items.menuItem',
       'name price imageUrl isAvailable'
     );
 
-    // Create empty cart if doesn't exist
     if (!cart) {
       cart = await Cart.create({
         user: req.userId,
@@ -25,27 +20,20 @@ export const getCart = async (req: Request, res: Response): Promise<void> => {
       success: true,
       data: cart
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Get cart error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to fetch cart',
-      error: error.message
+      error: error?.message
     });
   }
 };
 
-// @desc    Add item to cart
-// @route   POST /api/cart/items
-// @access  Private
-export const addToCart = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const addToCart = async (req, res) => {
   try {
     const { menuItemId, quantity = 1 } = req.body;
 
-    // Validation
     if (!menuItemId) {
       res.status(400).json({
         success: false,
@@ -62,7 +50,6 @@ export const addToCart = async (
       return;
     }
 
-    // Check if menu item exists and is available
     const menuItem = await MenuItem.findById(menuItemId);
 
     if (!menuItem) {
@@ -81,7 +68,6 @@ export const addToCart = async (
       return;
     }
 
-    // Get or create cart
     let cart = await Cart.findOne({ user: req.userId });
 
     if (!cart) {
@@ -92,15 +78,11 @@ export const addToCart = async (
       });
     }
 
-    // Check if item already in cart
-    const existingItemIndex = cart.items.findIndex(
-      (item) => item.menuItem.toString() === menuItemId
-    );
+    const existingItemIndex = cart.items.findIndex((item) => item.menuItem.toString() === menuItemId);
 
     if (existingItemIndex > -1) {
-      // Update quantity
       const newQuantity = cart.items[existingItemIndex].quantity + quantity;
-      
+
       if (newQuantity > 10) {
         res.status(400).json({
           success: false,
@@ -112,7 +94,6 @@ export const addToCart = async (
       cart.items[existingItemIndex].quantity = newQuantity;
       cart.items[existingItemIndex].subtotal = newQuantity * menuItem.price;
     } else {
-      // Add new item
       cart.items.push({
         menuItem: menuItem._id,
         name: menuItem.name,
@@ -122,10 +103,7 @@ export const addToCart = async (
       });
     }
 
-    // Save cart (pre-save hook will calculate total)
     await cart.save();
-
-    // Populate and return
     await cart.populate('items.menuItem', 'name price imageUrl isAvailable');
 
     res.status(200).json({
@@ -133,28 +111,21 @@ export const addToCart = async (
       message: 'Item added to cart',
       data: cart
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Add to cart error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to add item to cart',
-      error: error.message
+      error: error?.message
     });
   }
 };
 
-// @desc    Update cart item quantity
-// @route   PUT /api/cart/items/:menuItemId
-// @access  Private
-export const updateCartItem = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const updateCartItem = async (req, res) => {
   try {
     const { menuItemId } = req.params;
     const { quantity } = req.body;
 
-    // Validation
     if (quantity === undefined || quantity < 0 || quantity > 10) {
       res.status(400).json({
         success: false,
@@ -163,7 +134,6 @@ export const updateCartItem = async (
       return;
     }
 
-    // Get cart
     const cart = await Cart.findOne({ user: req.userId });
 
     if (!cart) {
@@ -174,10 +144,7 @@ export const updateCartItem = async (
       return;
     }
 
-    // Find item in cart
-    const itemIndex = cart.items.findIndex(
-      (item) => item.menuItem.toString() === menuItemId
-    );
+    const itemIndex = cart.items.findIndex((item) => item.menuItem.toString() === menuItemId);
 
     if (itemIndex === -1) {
       res.status(404).json({
@@ -187,17 +154,13 @@ export const updateCartItem = async (
       return;
     }
 
-    // If quantity is 0, remove item
     if (quantity === 0) {
       cart.items.splice(itemIndex, 1);
     } else {
-      // Update quantity
       cart.items[itemIndex].quantity = quantity;
-      cart.items[itemIndex].subtotal =
-        quantity * cart.items[itemIndex].price;
+      cart.items[itemIndex].subtotal = quantity * cart.items[itemIndex].price;
     }
 
-    // Save and populate
     await cart.save();
     await cart.populate('items.menuItem', 'name price imageUrl isAvailable');
 
@@ -206,27 +169,20 @@ export const updateCartItem = async (
       message: 'Cart updated',
       data: cart
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Update cart item error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to update cart item',
-      error: error.message
+      error: error?.message
     });
   }
 };
 
-// @desc    Remove item from cart
-// @route   DELETE /api/cart/items/:menuItemId
-// @access  Private
-export const removeFromCart = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const removeFromCart = async (req, res) => {
   try {
     const { menuItemId } = req.params;
 
-    // Get cart
     const cart = await Cart.findOne({ user: req.userId });
 
     if (!cart) {
@@ -237,12 +193,8 @@ export const removeFromCart = async (
       return;
     }
 
-    // Remove item
-    cart.items = cart.items.filter(
-      (item) => item.menuItem.toString() !== menuItemId
-    );
+    cart.items = cart.items.filter((item) => item.menuItem.toString() !== menuItemId);
 
-    // Save and populate
     await cart.save();
     await cart.populate('items.menuItem', 'name price imageUrl isAvailable');
 
@@ -251,23 +203,17 @@ export const removeFromCart = async (
       message: 'Item removed from cart',
       data: cart
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Remove from cart error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to remove item from cart',
-      error: error.message
+      error: error?.message
     });
   }
 };
 
-// @desc    Clear cart
-// @route   DELETE /api/cart
-// @access  Private
-export const clearCart = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const clearCart = async (req, res) => {
   try {
     const cart = await Cart.findOne({ user: req.userId });
 
@@ -288,12 +234,12 @@ export const clearCart = async (
       message: 'Cart cleared',
       data: cart
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Clear cart error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to clear cart',
-      error: error.message
+      error: error?.message
     });
   }
 };
