@@ -19,6 +19,7 @@ import AdminLoginPage from './admin/pages/AdminLoginPage';
 import AdminDashboardPage from './admin/pages/AdminDashboardPage';
 import AdminOrdersPage from './admin/pages/AdminOrdersPage';
 import AdminMenuPage from './admin/pages/AdminMenuPage';
+import AdminCategoriesPage from './admin/pages/AdminCategoriesPage';
 import AdminUsersPage from './admin/pages/AdminUsersPage';
 import AdminReportsPage from './admin/pages/AdminReportsPage';
 import AdminProtectedRoute from './admin/routes/AdminProtectedRoute';
@@ -53,6 +54,7 @@ export default function App() {
           <Route index element={<AdminDashboardPage />} />
           <Route path="orders" element={<AdminOrdersPage />} />
           <Route path="menu" element={<AdminMenuPage />} />
+          <Route path="categories" element={<AdminCategoriesPage />} />
           <Route path="users" element={<AdminUsersPage />} />
           <Route path="reports" element={<AdminReportsPage />} />
         </Route>

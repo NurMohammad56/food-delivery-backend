@@ -4,8 +4,8 @@
 
 :root {
   color-scheme: light;
-  --surface: #fffaf5;
-  --surface-strong: #fff1e4;
+  --surface: #f6f7fc;
+  --surface-strong: #e9ecf9;
   --ink: #1f2937;
   --muted: #64748b;
   --card-border: rgba(255, 255, 255, 0.75);
@@ -18,9 +18,9 @@ html {
 body {
   min-height: 100vh;
   background:
-    radial-gradient(circle at top left, rgba(251, 191, 36, 0.18), transparent 28%),
-    radial-gradient(circle at top right, rgba(20, 184, 166, 0.12), transparent 30%),
-    linear-gradient(180deg, #fff9f1 0%, #fff6ee 42%, #fffaf6 100%);
+    radial-gradient(circle at top left, rgba(47, 50, 143, 0.16), transparent 30%),
+    radial-gradient(circle at top right, rgba(2, 154, 87, 0.08), transparent 28%),
+    linear-gradient(180deg, #f6f7fc 0%, #f5f7fb 42%, #fbfcff 100%);
   color: var(--ink);
   font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
   @apply antialiased;
@@ -59,7 +59,7 @@ select {
   }
 
   .card-muted {
-    @apply rounded-[28px] border border-brand-100 bg-brand-50/80 shadow-soft;
+    @apply rounded-[28px] border border-brand-100 bg-brand-50/85 shadow-soft;
   }
 
   .glass-panel {
@@ -71,7 +71,7 @@ select {
   }
 
   .btn-primary {
-    @apply btn bg-gradient-to-r from-brand-600 via-brand-500 to-accent text-white shadow-glow hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:from-brand-300 disabled:via-brand-300 disabled:to-brand-300 disabled:shadow-none;
+    @apply btn bg-brand-600 text-white shadow-sm hover:-translate-y-0.5 hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-brand-300 disabled:shadow-none;
   }
 
   .btn-secondary {
@@ -104,7 +104,7 @@ select {
   }
 
   .brand-mark {
-    @apply flex items-center justify-center rounded-[22px] bg-gradient-to-br from-brand-500 via-brand-600 to-accent text-white shadow-glow;
+    @apply flex items-center justify-center rounded-[22px] bg-gradient-to-br from-brand-600 via-brand-700 to-brand-800 text-white shadow-glow;
   }
 
   .pill {

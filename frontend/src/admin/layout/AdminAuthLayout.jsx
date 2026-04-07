@@ -13,16 +13,6 @@ export default function AdminAuthLayout() {
               <h1 className="mt-12 max-w-xl text-5xl font-semibold tracking-tight">A separate login and workspace for canteen operations.</h1>
               <p className="mt-6 max-w-lg text-base leading-7 text-white/72">Admin access stays isolated from the student flow. Use this route only for orders, menu control, user roles, and reporting.</p>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="glass-panel p-5">
-                <p className="text-xs uppercase tracking-[0.28em] text-white/55">Secure path</p>
-                <p className="mt-3 text-lg font-semibold">Dedicated `/admin/login` entry and admin-only guard.</p>
-              </div>
-              <div className="glass-panel p-5">
-                <p className="text-xs uppercase tracking-[0.28em] text-white/55">Focused tools</p>
-                <p className="mt-3 text-lg font-semibold">Dashboard, orders, menu, users, and reports in one console.</p>
-              </div>
-            </div>
           </div>
         </div>
 

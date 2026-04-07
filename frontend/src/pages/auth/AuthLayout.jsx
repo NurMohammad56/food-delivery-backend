@@ -10,16 +10,6 @@ export default function AuthLayout() {
           <BrandLogo to="/" title="BentoBox" subtitle="Campus food delivery" theme="light" size="lg" />
           <h1 className="mt-12 max-w-lg text-5xl font-semibold leading-tight tracking-tight">A warmer campus ordering experience for students and operators.</h1>
           <p className="mt-6 max-w-xl text-base leading-7 text-white/75">Browse the daily menu, place pickup orders in minutes, and move admin operations into a calmer, more reliable dashboard flow.</p>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2">
-            <div className="glass-panel p-5">
-              <p className="text-xs uppercase tracking-[0.28em] text-white/55">Student flow</p>
-              <p className="mt-3 text-lg font-semibold">Browse, filter, order, and track status in one place.</p>
-            </div>
-            <div className="glass-panel p-5">
-              <p className="text-xs uppercase tracking-[0.28em] text-white/55">Admin flow</p>
-              <p className="mt-3 text-lg font-semibold">Monitor orders, manage menu items, and export reports.</p>
-            </div>
-          </div>
         </div>
         <p className="relative text-sm uppercase tracking-[0.24em] text-white/60">Northern University Bangladesh / Academic Project Delivery</p>
       </div>

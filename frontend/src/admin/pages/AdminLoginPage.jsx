@@ -41,8 +41,7 @@ export default function AdminLoginPage() {
   return (
     <div className="card border-white/10 bg-white/10 p-8 text-white">
       <p className="section-kicker !text-brand-200">Admin login</p>
-      <h2 className="mt-3 text-3xl font-semibold tracking-tight">Access the operations console</h2>
-      <p className="mt-3 text-sm leading-6 text-white/70">Use an account with the `admin` role. Student accounts cannot enter this portal.</p>
+      <h2 className="mt-3 text-3xl font-semibold tracking-tight">Sign in to admin</h2>
 
       <form onSubmit={submit} className="mt-8 space-y-5">
         <div>

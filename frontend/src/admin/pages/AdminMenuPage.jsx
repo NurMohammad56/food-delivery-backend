@@ -2,42 +2,67 @@ import { useEffect, useMemo, useState } from 'react';
 import { adminApi, menuApi } from '../../api/services';
 import EmptyState from '../../components/common/EmptyState';
 import Loader from '../../components/common/Loader';
+import Modal from '../../components/common/Modal';
+import Pagination from '../../components/common/Pagination';
 
-const initialForm = { name: '', description: '', category: '', price: '', preparationTime: '', isAvailable: true, image: null };
-const initialCategoryForm = { name: '', description: '' };
+const PAGE_SIZE = 10;
+const initialForm = {
+  name: '',
+  description: '',
+  category: '',
+  price: '',
+  preparationTime: '',
+  isAvailable: true,
+  image: null,
+};
 
 export default function AdminMenuPage() {
   const [categories, setCategories] = useState([]);
   const [menu, setMenu] = useState([]);
   const [form, setForm] = useState(initialForm);
   const [editingId, setEditingId] = useState('');
-  const [categoryForm, setCategoryForm] = useState(initialCategoryForm);
-  const [editingCategoryId, setEditingCategoryId] = useState('');
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [menuModalOpen, setMenuModalOpen] = useState(false);
+  const [meta, setMeta] = useState({ page: 1, pages: 1, total: 0 });
 
-  const loadData = async () => {
-    setLoading(true);
+  const loadData = async ({ silent = false, page = meta.page } = {}) => {
+    if (silent) setRefreshing(true);
+    else setLoading(true);
     setError('');
+
     try {
-      const [categoryResponse, menuResponse] = await Promise.all([menuApi.getCategories(), menuApi.getMenu()]);
+      const [categoryResponse, menuResponse] = await Promise.all([
+        menuApi.getCategories(),
+        menuApi.getMenu({ page, limit: PAGE_SIZE }),
+      ]);
+
       setCategories(categoryResponse.data.data);
       setMenu(menuResponse.data.data);
+      setMeta({
+        page: menuResponse.data.page || page,
+        pages: menuResponse.data.pages || 1,
+        total: menuResponse.data.total || menuResponse.data.data.length,
+      });
     } catch (err) {
       setError(err?.response?.data?.message || 'Failed to load menu management data');
     } finally {
-      setLoading(false);
+      if (silent) setRefreshing(false);
+      else setLoading(false);
     }
   };
 
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => {
+    loadData({ page: 1 });
+  }, []);
 
   const summary = useMemo(() => ({
-    menuCount: menu.length,
-    availableCount: menu.filter((item) => item.isAvailable).length,
+    totalMenuCount: meta.total,
+    visibleCount: menu.length,
     categoryCount: categories.length,
-  }), [menu, categories]);
+  }), [meta.total, menu.length, categories.length]);
 
   const buildFormData = () => {
     const data = new FormData();
@@ -50,33 +75,16 @@ export default function AdminMenuPage() {
   const resetMenuForm = () => {
     setForm(initialForm);
     setEditingId('');
+    setMenuModalOpen(false);
   };
 
-  const resetCategoryForm = () => {
-    setCategoryForm(initialCategoryForm);
-    setEditingCategoryId('');
+  const openCreateModal = () => {
+    setForm(initialForm);
+    setEditingId('');
+    setMenuModalOpen(true);
   };
 
-  const submitMenu = async (event) => {
-    event.preventDefault();
-    setMessage('');
-    setError('');
-    try {
-      if (editingId) {
-        await adminApi.updateMenu(editingId, buildFormData());
-        setMessage('Menu item updated successfully.');
-      } else {
-        await adminApi.createMenu(buildFormData());
-        setMessage('Menu item created successfully.');
-      }
-      resetMenuForm();
-      loadData();
-    } catch (err) {
-      setError(err?.response?.data?.message || 'Failed to save menu item');
-    }
-  };
-
-  const startEdit = (item) => {
+  const openEditModal = (item) => {
     setEditingId(item._id);
     setForm({
       name: item.name,
@@ -87,24 +95,27 @@ export default function AdminMenuPage() {
       isAvailable: item.isAvailable,
       image: null,
     });
+    setMenuModalOpen(true);
   };
 
-  const submitCategory = async (event) => {
+  const submitMenu = async (event) => {
     event.preventDefault();
     setMessage('');
     setError('');
+
     try {
-      if (editingCategoryId) {
-        await adminApi.updateCategory(editingCategoryId, categoryForm);
-        setMessage('Category updated successfully.');
+      if (editingId) {
+        await adminApi.updateMenu(editingId, buildFormData());
+        setMessage('Menu item updated successfully.');
       } else {
-        await adminApi.createCategory(categoryForm);
-        setMessage('Category created successfully.');
+        await adminApi.createMenu(buildFormData());
+        setMessage('Menu item created successfully.');
       }
-      resetCategoryForm();
-      loadData();
+
+      resetMenuForm();
+      loadData({ silent: true, page: meta.page });
     } catch (err) {
-      setError(err?.response?.data?.message || 'Failed to save category');
+      setError(err?.response?.data?.message || 'Failed to save menu item');
     }
   };
 
@@ -112,10 +123,12 @@ export default function AdminMenuPage() {
     if (!window.confirm('Delete this menu item?')) return;
     setMessage('');
     setError('');
+
     try {
       await adminApi.deleteMenu(id);
       setMessage('Menu item deleted successfully.');
-      loadData();
+      const nextPage = meta.page > 1 && menu.length === 1 ? meta.page - 1 : meta.page;
+      loadData({ silent: true, page: nextPage });
     } catch (err) {
       setError(err?.response?.data?.message || 'Failed to delete menu item');
     }
@@ -124,30 +137,13 @@ export default function AdminMenuPage() {
   const toggleAvailability = async (id) => {
     setMessage('');
     setError('');
+
     try {
       await adminApi.toggleAvailability(id);
       setMessage('Menu availability updated.');
-      loadData();
+      loadData({ silent: true, page: meta.page });
     } catch (err) {
       setError(err?.response?.data?.message || 'Failed to toggle availability');
-    }
-  };
-
-  const startCategoryEdit = (category) => {
-    setEditingCategoryId(category._id);
-    setCategoryForm({ name: category.name, description: category.description || '' });
-  };
-
-  const removeCategory = async (id) => {
-    if (!window.confirm('Delete this category?')) return;
-    setMessage('');
-    setError('');
-    try {
-      await adminApi.deleteCategory(id);
-      setMessage('Category deleted successfully.');
-      loadData();
-    } catch (err) {
-      setError(err?.response?.data?.message || 'Failed to delete category');
     }
   };
 
@@ -157,12 +153,12 @@ export default function AdminMenuPage() {
     <div className="space-y-6">
       <div className="grid gap-5 md:grid-cols-3">
         <div className="metric-card">
-          <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Menu items</p>
-          <p className="mt-3 text-3xl font-bold text-slate-900">{summary.menuCount}</p>
+          <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Total menu items</p>
+          <p className="mt-3 text-3xl font-bold text-slate-900">{summary.totalMenuCount}</p>
         </div>
         <div className="metric-card">
-          <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Available now</p>
-          <p className="mt-3 text-3xl font-bold text-slate-900">{summary.availableCount}</p>
+          <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Visible on page</p>
+          <p className="mt-3 text-3xl font-bold text-slate-900">{summary.visibleCount}</p>
         </div>
         <div className="metric-card">
           <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Categories</p>
@@ -173,23 +169,74 @@ export default function AdminMenuPage() {
       {message ? <div className="card p-4 text-sm text-emerald-600">{message}</div> : null}
       {error ? <div className="card p-4 text-sm text-rose-600">{error}</div> : null}
 
-      <div className="grid gap-8 xl:grid-cols-[1fr_0.92fr]">
-        <form onSubmit={submitMenu} className="card p-6">
-          <h2 className="text-xl font-semibold text-slate-900">{editingId ? 'Edit menu item' : 'Create menu item'}</h2>
-          <div className="mt-6 grid gap-5 md:grid-cols-2">
-            <div className="md:col-span-2">
-              <label className="label">Item name</label>
-              <input className="input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-            </div>
-            <div className="md:col-span-2">
-              <label className="label">Description</label>
-              <textarea className="input min-h-[120px]" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} required />
-            </div>
+      <div className="card p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-xl font-semibold text-slate-900">Menu inventory</h2>
+            <p className="mt-2 text-sm text-slate-500">Manage menu items and availability. Category editing now lives in the separate Categories module.</p>
+          </div>
+          <div className="flex items-center gap-3">
+            {refreshing ? <span className="pill bg-white text-slate-500">Refreshing...</span> : null}
+            <button type="button" onClick={openCreateModal} className="btn-primary">Add menu item</button>
+          </div>
+        </div>
+
+        {!menu.length ? <div className="mt-5"><EmptyState title="No menu items yet" description="Create a menu item to populate the public menu." /></div> : null}
+
+        <div className="mt-5 -mx-6 overflow-x-auto px-6">
+          <table className="min-w-[920px] w-full text-left text-sm">
+            <thead className="text-slate-500">
+              <tr>
+                <th className="py-3">Name</th>
+                <th className="py-3">Category</th>
+                <th className="py-3">Price</th>
+                <th className="py-3">Prep time</th>
+                <th className="py-3">Status</th>
+                <th className="py-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {menu.map((item) => (
+                <tr key={item._id} className="border-t border-slate-200 align-top">
+                  <td className="py-4 font-medium text-slate-800">{item.name}</td>
+                  <td className="py-4 text-slate-600">{item.category?.name || item.category}</td>
+                  <td className="py-4 text-slate-600">{item.price}</td>
+                  <td className="py-4 text-slate-600">{item.preparationTime} min</td>
+                  <td className="py-4 text-slate-600">{item.isAvailable ? 'Available' : 'Unavailable'}</td>
+                  <td className="py-4">
+                    <div className="flex flex-wrap justify-end gap-2">
+                      <button type="button" onClick={() => openEditModal(item)} className="btn-secondary">Edit</button>
+                      <button type="button" onClick={() => toggleAvailability(item._id)} className="btn-secondary">Toggle</button>
+                      <button type="button" onClick={() => removeMenu(item._id)} className="btn-danger">Delete</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <Pagination page={meta.page} pages={meta.pages} onPageChange={(page) => loadData({ silent: true, page })} className="mt-6" />
+      </div>
+
+      <Modal open={menuModalOpen} onClose={resetMenuForm} title={editingId ? 'Edit menu item' : 'Create menu item'}>
+        <form onSubmit={submitMenu} className="space-y-5">
+          <div>
+            <label className="label">Item name</label>
+            <input className="input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+          </div>
+          <div>
+            <label className="label">Description</label>
+            <textarea className="input min-h-[120px]" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} required />
+          </div>
+          <div className="grid gap-5 md:grid-cols-2">
             <div>
               <label className="label">Category</label>
               <select className="input" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} required>
                 <option value="">Select category</option>
-                {categories.map((category) => <option key={category._id} value={category._id}>{category.name}</option>)}
+                {categories.map((category) => (
+                  <option key={category._id} value={category._id}>{category.name}</option>
+                ))}
               </select>
             </div>
             <div>
@@ -204,98 +251,17 @@ export default function AdminMenuPage() {
               <label className="label">Image</label>
               <input className="input" type="file" accept="image/*" onChange={(e) => setForm({ ...form, image: e.target.files?.[0] || null })} />
             </div>
-            <div className="flex items-center gap-3 rounded-[22px] bg-slate-50 px-4 py-3">
-              <input type="checkbox" checked={form.isAvailable} onChange={(e) => setForm({ ...form, isAvailable: e.target.checked })} />
-              <span className="text-sm text-slate-700">Available for ordering</span>
-            </div>
           </div>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <button className="btn-primary">{editingId ? 'Update item' : 'Create item'}</button>
-            {editingId ? <button type="button" onClick={resetMenuForm} className="btn-secondary">Cancel</button> : null}
+          <label className="flex items-center gap-3 rounded-[22px] bg-slate-50 px-4 py-3 text-sm text-slate-700">
+            <input type="checkbox" checked={form.isAvailable} onChange={(e) => setForm({ ...form, isAvailable: e.target.checked })} />
+            Available for ordering
+          </label>
+          <div className="flex flex-wrap gap-3">
+            <button className="btn-primary">{editingId ? 'Save changes' : 'Create item'}</button>
+            <button type="button" onClick={resetMenuForm} className="btn-secondary">Cancel</button>
           </div>
         </form>
-
-        <div className="space-y-8">
-          <form onSubmit={submitCategory} className="card p-6">
-            <h2 className="text-xl font-semibold text-slate-900">{editingCategoryId ? 'Edit category' : 'Create category'}</h2>
-            <div className="mt-6 space-y-5">
-              <div>
-                <label className="label">Category name</label>
-                <input className="input" value={categoryForm.name} onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })} required />
-              </div>
-              <div>
-                <label className="label">Description</label>
-                <textarea className="input min-h-[100px]" value={categoryForm.description} onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })} />
-              </div>
-              <div className="flex flex-wrap gap-3">
-                <button className="btn-primary">{editingCategoryId ? 'Update category' : 'Create category'}</button>
-                {editingCategoryId ? <button type="button" onClick={resetCategoryForm} className="btn-secondary">Cancel</button> : null}
-              </div>
-            </div>
-          </form>
-
-          <div className="card p-6">
-            <h2 className="text-xl font-semibold text-slate-900">Category directory</h2>
-            {!categories.length ? <div className="mt-5"><EmptyState title="No categories yet" description="Create the first category to start organizing menu items." /></div> : null}
-            <div className="mt-5 space-y-3">
-              {categories.map((category) => (
-                <div key={category._id} className="rounded-[22px] bg-slate-50 px-4 py-4 text-sm">
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                    <div>
-                      <p className="font-medium text-slate-800">{category.name}</p>
-                      <p className="mt-1 text-slate-500">{category.description || 'No description'}</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <button type="button" onClick={() => startCategoryEdit(category)} className="btn-secondary">Edit</button>
-                      <button type="button" onClick={() => removeCategory(category._id)} className="btn-danger">Delete</button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="card p-6">
-        <div className="flex items-center justify-between gap-4">
-          <h2 className="text-xl font-semibold text-slate-900">Menu inventory</h2>
-          <span className="pill bg-slate-100">{summary.menuCount} items</span>
-        </div>
-
-        {!menu.length ? <div className="mt-5"><EmptyState title="No menu items yet" description="Create a menu item to populate the public menu." /></div> : null}
-
-        <div className="mt-5 overflow-x-auto">
-          <table className="min-w-full text-left text-sm">
-            <thead className="text-slate-500">
-              <tr>
-                <th className="py-3">Name</th>
-                <th className="py-3">Category</th>
-                <th className="py-3">Price</th>
-                <th className="py-3">Status</th>
-                <th className="py-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {menu.map((item) => (
-                <tr key={item._id} className="border-t border-slate-200">
-                  <td className="py-4 font-medium text-slate-800">{item.name}</td>
-                  <td className="py-4 text-slate-600">{item.category?.name || item.category}</td>
-                  <td className="py-4 text-slate-600">{item.price}</td>
-                  <td className="py-4 text-slate-600">{item.isAvailable ? 'Available' : 'Unavailable'}</td>
-                  <td className="py-4">
-                    <div className="flex flex-wrap gap-2">
-                      <button type="button" onClick={() => startEdit(item)} className="btn-secondary">Edit</button>
-                      <button type="button" onClick={() => toggleAvailability(item._id)} className="btn-secondary">Toggle</button>
-                      <button type="button" onClick={() => removeMenu(item._id)} className="btn-danger">Delete</button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      </Modal>
     </div>
   );
 }

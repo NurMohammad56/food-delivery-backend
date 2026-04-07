@@ -1,32 +1,40 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { menuApi } from '../../api/services';
-import MenuCard from '../../components/menu/MenuCard';
-import Loader from '../../components/common/Loader';
-import EmptyState from '../../components/common/EmptyState';
-import Toast from '../../components/common/Toast';
-import MenuShowcase from '../../components/home/MenuShowcase';
-import { useAuth } from '../../contexts/AuthContext';
-import { useCart } from '../../contexts/CartContext';
+import { useEffect, useMemo, useRef, useState } from "react";
+import { menuApi } from "../../api/services";
+import MenuCard from "../../components/menu/MenuCard";
+import Loader from "../../components/common/Loader";
+import EmptyState from "../../components/common/EmptyState";
+import Toast from "../../components/common/Toast";
+import MenuShowcase from "../../components/home/MenuShowcase";
+import { useAuth } from "../../contexts/AuthContext";
+import { useCart } from "../../contexts/CartContext";
 
 export default function HomePage() {
   const { isAuthenticated } = useAuth();
   const { addToCart } = useCart();
   const [menuItems, setMenuItems] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [filters, setFilters] = useState({ category: '', search: '', minPrice: '', maxPrice: '', isAvailable: 'true' });
+  const [filters, setFilters] = useState({
+    category: "",
+    search: "",
+    minPrice: "",
+    maxPrice: "",
+    isAvailable: "true",
+  });
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState('');
-  const [toast, setToast] = useState('');
+  const [error, setError] = useState("");
+  const [toast, setToast] = useState("");
   const hasLoadedRef = useRef(false);
 
   const loadData = async ({ silent = false } = {}) => {
     if (silent) setRefreshing(true);
     else setLoading(true);
-    setError('');
+    setError("");
     try {
       const params = { ...filters };
-      Object.keys(params).forEach((key) => params[key] === '' && delete params[key]);
+      Object.keys(params).forEach(
+        (key) => params[key] === "" && delete params[key],
+      );
       const [menuResponse, categoryResponse] = await Promise.all([
         menuApi.getMenu(params),
         menuApi.getCategories(),
@@ -34,7 +42,7 @@ export default function HomePage() {
       setMenuItems(menuResponse.data.data);
       setCategories(categoryResponse.data.data);
     } catch (err) {
-      setError(err?.response?.data?.message || 'Failed to load menu');
+      setError(err?.response?.data?.message || "Failed to load menu");
     } finally {
       if (silent) setRefreshing(false);
       else setLoading(false);
@@ -51,7 +59,13 @@ export default function HomePage() {
     if (!hasLoadedRef.current) return undefined;
     const timeout = setTimeout(() => loadData({ silent: true }), 250);
     return () => clearTimeout(timeout);
-  }, [filters.category, filters.search, filters.minPrice, filters.maxPrice, filters.isAvailable]);
+  }, [
+    filters.category,
+    filters.search,
+    filters.minPrice,
+    filters.maxPrice,
+    filters.isAvailable,
+  ]);
 
   const matchingCount = useMemo(() => menuItems.length, [menuItems]);
   const featuredItems = useMemo(() => {
@@ -61,17 +75,17 @@ export default function HomePage() {
 
   const handleAdd = async (item) => {
     if (!isAuthenticated) {
-      setToast('Please login first to add items to your cart.');
-      setTimeout(() => setToast(''), 2200);
+      setToast("Please login first to add items to your cart.");
+      setTimeout(() => setToast(""), 2200);
       return;
     }
     try {
       await addToCart(item._id, 1);
       setToast(`${item.name} added to cart.`);
     } catch (err) {
-      setToast(err?.response?.data?.message || 'Could not add item.');
+      setToast(err?.response?.data?.message || "Could not add item.");
     } finally {
-      setTimeout(() => setToast(''), 2200);
+      setTimeout(() => setToast(""), 2200);
     }
   };
 
@@ -79,32 +93,143 @@ export default function HomePage() {
 
   return (
     <div className="container-page py-8 sm:py-10">
-      <section className="grid gap-6 xl:grid-cols-[1.04fr_0.96fr]">
-        <div className="relative overflow-hidden rounded-[32px] bg-slate-950 p-8 text-white shadow-soft sm:p-10">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.35),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(20,184,166,0.26),transparent_32%)]" />
-          <div className="relative">
-            <p className="section-kicker !text-brand-200">BentoBox / Campus menu</p>
-            <h1 className="mt-4 max-w-3xl text-4xl font-semibold tracking-tight sm:text-5xl">Order ahead, skip the queue, and pick up meals right on time.</h1>
-            <p className="mt-5 max-w-2xl text-sm leading-7 text-white/75 sm:text-base">A lighter student experience with faster filtering, richer menu presentation, and a separate admin console for canteen operations.</p>
+      <section className="grid gap-6 xl:grid-cols-[1.04fr_0.96fr] xl:items-start">
+        <div className="space-y-6">
+          <div className="relative overflow-hidden rounded-[32px] bg-slate-950 p-8 text-white shadow-soft sm:p-10">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.35),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(20,184,166,0.26),transparent_32%)]" />
+            <div className="relative">
+              <p className="section-kicker !text-brand-200">
+                BentoBox / Campus menu
+              </p>
+              <h1 className="mt-4 max-w-3xl text-4xl font-semibold tracking-tight sm:text-5xl">
+                Order ahead, skip the queue, and pick up meals right on time.
+              </h1>
+              <p className="mt-5 max-w-2xl text-sm leading-7 text-white/75 sm:text-base">
+                Skip the line, grab your food exactly when you need it, and make
+                your campus life a whole lot easier. This experience is built
+                for students who don't want to waste time waiting in long queues
+                or dealing with slow ordering systems. With a clean and
+                intuitive interface, you can quickly explore a wide variety of
+                meals, filter options based on your preferences, and view rich,
+                detailed menus that actually help you decide what to eat.
+              </p>
 
-            <div className="mt-8 flex flex-wrap gap-3">
-              <span className="pill border-white/10 bg-white/10 text-white">Live menu filtering</span>
-              <span className="pill border-white/10 bg-white/10 text-white">Cash on pickup</span>
-              <span className="pill border-white/10 bg-white/10 text-white">Admin analytics and reports</span>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <span className="pill border-white/10 bg-white/10 text-white">
+                  Live menu filtering
+                </span>
+                <span className="pill border-white/10 bg-white/10 text-white">
+                  Cash on pickup
+                </span>
+              </div>
+
+              <div className="mt-10 grid gap-4 sm:grid-cols-3">
+                <div className="glass-panel p-4">
+                  <p className="text-xs uppercase tracking-[0.24em] text-white/55">
+                    Active items
+                  </p>
+                  <p className="mt-3 text-3xl font-semibold">{matchingCount}</p>
+                </div>
+                <div className="glass-panel p-4">
+                  <p className="text-xs uppercase tracking-[0.24em] text-white/55">
+                    Categories
+                  </p>
+                  <p className="mt-3 text-3xl font-semibold">
+                    {categories.length}
+                  </p>
+                </div>
+                <div className="glass-panel p-4">
+                  <p className="text-xs uppercase tracking-[0.24em] text-white/55">
+                    Fastest prep
+                  </p>
+                  <p className="mt-3 text-3xl font-semibold">
+                    {featuredItems[0]?.preparationTime || 0} min
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-[1.05fr_0.95fr]">
+            <div className="card p-6">
+              <p className="section-kicker">Pickup rhythm</p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">
+                Three simple steps from menu to meal.
+              </h2>
+              <div className="mt-5 grid gap-3">
+                <div className="rounded-[22px] bg-slate-50 px-4 py-4">
+                  <p className="text-xs uppercase tracking-[0.22em] text-slate-400">
+                    01 / Browse
+                  </p>
+                  <p className="mt-2 text-sm font-medium text-slate-800">
+                    Scan the menu, compare prep times, and lock in what you
+                    want.
+                  </p>
+                </div>
+                <div className="rounded-[22px] bg-slate-50 px-4 py-4">
+                  <p className="text-xs uppercase tracking-[0.22em] text-slate-400">
+                    02 / Reserve
+                  </p>
+                  <p className="mt-2 text-sm font-medium text-slate-800">
+                    Place the order before the rush and keep payment simple at
+                    pickup.
+                  </p>
+                </div>
+                <div className="rounded-[22px] bg-slate-50 px-4 py-4">
+                  <p className="text-xs uppercase tracking-[0.22em] text-slate-400">
+                    03 / Collect
+                  </p>
+                  <p className="mt-2 text-sm font-medium text-slate-800">
+                    Track status updates and arrive when the food is nearly
+                    ready.
+                  </p>
+                </div>
+              </div>
             </div>
 
-            <div className="mt-10 grid gap-4 sm:grid-cols-3">
-              <div className="glass-panel p-4">
-                <p className="text-xs uppercase tracking-[0.24em] text-white/55">Active items</p>
-                <p className="mt-3 text-3xl font-semibold">{matchingCount}</p>
+            <div className="card p-6">
+              <p className="section-kicker">Smart ordering</p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">
+                Made for short campus breaks and fast pickup decisions.
+              </h2>
+              <div className="mt-5 space-y-3">
+                <div className="rounded-[22px] bg-slate-50 px-4 py-4">
+                  <p className="text-xs uppercase tracking-[0.22em] text-slate-400">
+                    Before class
+                  </p>
+                  <p className="mt-2 text-sm font-medium text-slate-800">
+                    Choose faster-prep items when you need a tight pickup
+                    window.
+                  </p>
+                </div>
+                <div className="rounded-[22px] bg-slate-50 px-4 py-4">
+                  <p className="text-xs uppercase tracking-[0.22em] text-slate-400">
+                    Lunch rush
+                  </p>
+                  <p className="mt-2 text-sm font-medium text-slate-800">
+                    Use the filters to cut through the menu and go straight to
+                    what is available.
+                  </p>
+                </div>
+                <div className="rounded-[22px] bg-slate-50 px-4 py-4">
+                  <p className="text-xs uppercase tracking-[0.22em] text-slate-400">
+                    Quick compare
+                  </p>
+                  <p className="mt-2 text-sm font-medium text-slate-800">
+                    Prep time, price, and item details stay visible so the
+                    decision is faster.
+                  </p>
+                </div>
               </div>
-              <div className="glass-panel p-4">
-                <p className="text-xs uppercase tracking-[0.24em] text-white/55">Categories</p>
-                <p className="mt-3 text-3xl font-semibold">{categories.length}</p>
-              </div>
-              <div className="glass-panel p-4">
-                <p className="text-xs uppercase tracking-[0.24em] text-white/55">Fastest prep</p>
-                <p className="mt-3 text-3xl font-semibold">{featuredItems[0]?.preparationTime || 0} min</p>
+              <div className="mt-5 flex flex-wrap gap-2">
+                {categories.slice(0, 5).map((category) => (
+                  <span
+                    key={category._id}
+                    className="rounded-full bg-brand-50 px-3 py-1 text-xs font-medium text-brand-700"
+                  >
+                    {category.name}
+                  </span>
+                ))}
               </div>
             </div>
           </div>
@@ -117,11 +242,20 @@ export default function HomePage() {
         <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
           <div>
             <p className="section-kicker">Filter menu</p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">Find something worth the walk</h2>
-            <p className="section-subtitle">Search by keyword, narrow by category, and keep the list focused on what is actually available.</p>
+            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">
+              Find something worth the walk
+            </h2>
+            <p className="section-subtitle">
+              Search by keyword, narrow by category, and keep the list focused
+              on what is actually available.
+            </p>
           </div>
           <div className="flex items-center gap-3">
-            {refreshing ? <span className="pill bg-white text-slate-500">Refreshing menu...</span> : null}
+            {refreshing ? (
+              <span className="pill bg-white text-slate-500">
+                Refreshing menu...
+              </span>
+            ) : null}
             <div className="pill w-fit bg-brand-50 text-brand-700">
               {matchingCount} item(s) match your filters
             </div>
@@ -129,14 +263,53 @@ export default function HomePage() {
         </div>
 
         <div className="mt-6 grid gap-4 lg:grid-cols-[1.2fr_0.8fr_0.8fr_0.8fr_0.8fr]">
-          <input className="input" placeholder="Search by item name or description" value={filters.search} onChange={(e) => setFilters({ ...filters, search: e.target.value })} />
-          <select className="input" value={filters.category} onChange={(e) => setFilters({ ...filters, category: e.target.value })}>
+          <input
+            className="input"
+            placeholder="Search by item name or description"
+            value={filters.search}
+            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+          />
+          <select
+            className="input"
+            value={filters.category}
+            onChange={(e) =>
+              setFilters({ ...filters, category: e.target.value })
+            }
+          >
             <option value="">All categories</option>
-            {categories.map((category) => <option key={category._id} value={category._id}>{category.name}</option>)}
+            {categories.map((category) => (
+              <option key={category._id} value={category._id}>
+                {category.name}
+              </option>
+            ))}
           </select>
-          <input className="input" type="number" min="0" placeholder="Min price" value={filters.minPrice} onChange={(e) => setFilters({ ...filters, minPrice: e.target.value })} />
-          <input className="input" type="number" min="0" placeholder="Max price" value={filters.maxPrice} onChange={(e) => setFilters({ ...filters, maxPrice: e.target.value })} />
-          <select className="input" value={filters.isAvailable} onChange={(e) => setFilters({ ...filters, isAvailable: e.target.value })}>
+          <input
+            className="input"
+            type="number"
+            min="0"
+            placeholder="Min price"
+            value={filters.minPrice}
+            onChange={(e) =>
+              setFilters({ ...filters, minPrice: e.target.value })
+            }
+          />
+          <input
+            className="input"
+            type="number"
+            min="0"
+            placeholder="Max price"
+            value={filters.maxPrice}
+            onChange={(e) =>
+              setFilters({ ...filters, maxPrice: e.target.value })
+            }
+          />
+          <select
+            className="input"
+            value={filters.isAvailable}
+            onChange={(e) =>
+              setFilters({ ...filters, isAvailable: e.target.value })
+            }
+          >
             <option value="true">Available only</option>
             <option value="">All items</option>
             <option value="false">Unavailable only</option>
@@ -148,8 +321,14 @@ export default function HomePage() {
             <button
               key={category._id}
               type="button"
-              onClick={() => setFilters({ ...filters, category: filters.category === category._id ? '' : category._id })}
-              className={`rounded-full px-4 py-2 text-sm font-medium transition ${filters.category === category._id ? 'bg-brand-600 text-white shadow-lg' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+              onClick={() =>
+                setFilters({
+                  ...filters,
+                  category:
+                    filters.category === category._id ? "" : category._id,
+                })
+              }
+              className={`rounded-full px-4 py-2 text-sm font-medium transition ${filters.category === category._id ? "bg-brand-600 text-white shadow-lg" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
             >
               {category.name}
             </button>
@@ -160,14 +339,27 @@ export default function HomePage() {
       <section className="mt-8">
         <div className="mb-6">
           <p className="section-kicker">Today&apos;s menu</p>
-          <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">Freshly plated for collection</h2>
+          <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">
+            Freshly plated for collection
+          </h2>
         </div>
 
-        {error ? <div className="card p-6 text-sm text-rose-600">{error}</div> : null}
-        {!error && menuItems.length === 0 ? <EmptyState title="No menu items found" description="Try adjusting your filters or search keywords." /> : null}
+        {error ? (
+          <div className="card p-6 text-sm text-rose-600">{error}</div>
+        ) : null}
+        {!error && menuItems.length === 0 ? (
+          <EmptyState
+            title="No menu items found"
+            description="Try adjusting your filters or search keywords."
+          />
+        ) : null}
 
-        <div className={`grid gap-6 transition-opacity duration-200 md:grid-cols-2 xl:grid-cols-3 ${refreshing ? 'opacity-70' : 'opacity-100'}`}>
-          {menuItems.map((item) => <MenuCard key={item._id} item={item} onAdd={handleAdd} />)}
+        <div
+          className={`grid gap-6 transition-opacity duration-200 md:grid-cols-2 xl:grid-cols-3 ${refreshing ? "opacity-70" : "opacity-100"}`}
+        >
+          {menuItems.map((item) => (
+            <MenuCard key={item._id} item={item} onAdd={handleAdd} />
+          ))}
         </div>
       </section>
 

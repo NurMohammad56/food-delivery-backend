@@ -1,4 +1,4 @@
-import BrandLogo from '../branding/BrandLogo';
+import BrandLogo from "../branding/BrandLogo";
 
 export default function Footer() {
   return (
@@ -8,7 +8,7 @@ export default function Footer() {
           <BrandLogo title="BentoBox" subtitle="Campus pickup, timed right" />
           <div className="text-sm text-slate-500 sm:text-right">
             <p>Copyright 2026 NUB Campus Food Delivery System.</p>
-            <p className="mt-1">Built for students, canteen staff, and academic project delivery.</p>
+            <p className="mt-1">Built for students, canteen staff.</p>
           </div>
         </div>
       </div>

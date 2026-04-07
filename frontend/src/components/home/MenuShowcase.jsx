@@ -43,48 +43,54 @@ export default function MenuShowcase({ items = [], onAdd }) {
           </div>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1.06fr_0.94fr]">
-          <div className="overflow-hidden rounded-[28px] bg-slate-950">
-            <div className="grid min-h-[360px] items-stretch lg:grid-cols-[0.95fr_1.05fr]">
-              <div className="flex flex-col justify-between gap-6 p-6 text-white sm:p-8">
-                <div className="space-y-4">
-                  <span className="pill w-fit border-white/15 bg-white/10 text-white/85">
-                    {activeItem.category?.name || activeItem.category || 'Chef special'}
-                  </span>
-                  <div>
-                    <h3 className="text-3xl font-semibold tracking-tight">{activeItem.name}</h3>
-                    <p className="mt-3 max-w-lg text-sm leading-6 text-white/75">{activeItem.description}</p>
+        <div className="space-y-4">
+          <div className="overflow-hidden rounded-[28px] bg-slate-950 shadow-soft">
+            <div className="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-brand-200 via-brand-100 to-emerald-100">
+              {activeItem.imageUrl ? (
+                <img src={activeItem.imageUrl} alt={activeItem.name} className="absolute inset-0 h-full w-full object-cover object-center" />
+              ) : (
+                <div className="flex h-full items-center justify-center p-8 text-center">
+                  <div className="space-y-3">
+                    <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-white/70 text-3xl shadow-lg">🍱</div>
+                    <p className="text-sm font-medium text-slate-700">Freshly plated for the campus rush.</p>
                   </div>
                 </div>
-                <div className="flex flex-wrap items-end justify-between gap-4">
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.24em] text-white/55">Ready in</p>
-                    <p className="mt-2 text-2xl font-semibold">{activeItem.preparationTime} min</p>
-                  </div>
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.24em] text-white/55">Price</p>
-                    <p className="mt-2 text-2xl font-semibold">{currency(activeItem.price)}</p>
-                  </div>
+              )}
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950/30 to-transparent" />
+            </div>
+
+            <div className="space-y-5 p-6 text-white sm:p-8">
+              <div className="space-y-4">
+                <span className="pill w-fit border-white/15 bg-white/10 text-white/85">
+                  {activeItem.category?.name || activeItem.category || 'Chef special'}
+                </span>
+                <div>
+                  <h3 className="text-3xl font-semibold tracking-tight">{activeItem.name}</h3>
+                  <p className="mt-3 max-w-2xl text-sm leading-6 text-white/75">{activeItem.description}</p>
                 </div>
               </div>
 
-              <div className="relative min-h-[260px] overflow-hidden bg-gradient-to-br from-brand-200 via-brand-100 to-emerald-100">
-                {activeItem.imageUrl ? (
-                  <img src={activeItem.imageUrl} alt={activeItem.name} className="absolute inset-0 h-full w-full object-cover object-center" />
-                ) : (
-                  <div className="flex h-full items-center justify-center p-8 text-center">
-                    <div className="space-y-3">
-                      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-white/70 text-3xl shadow-lg">🍱</div>
-                      <p className="text-sm font-medium text-slate-700">Freshly plated for the campus rush.</p>
-                    </div>
-                  </div>
-                )}
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950/20 to-transparent" />
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="glass-panel p-4">
+                  <p className="text-xs uppercase tracking-[0.24em] text-white/55">Ready in</p>
+                  <p className="mt-2 text-2xl font-semibold">{activeItem.preparationTime} min</p>
+                </div>
+                <div className="glass-panel p-4">
+                  <p className="text-xs uppercase tracking-[0.24em] text-white/55">Price</p>
+                  <p className="mt-2 text-2xl font-semibold">{currency(activeItem.price)}</p>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                <Link to={`/menu/${activeItem._id}`} className="btn-secondary">View details</Link>
+                <button type="button" onClick={() => onAdd(activeItem)} className="btn-primary">
+                  Add featured item
+                </button>
               </div>
             </div>
           </div>
 
-          <div className="space-y-3">
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
             {featured.map((item, index) => (
               <button
                 key={item._id}
@@ -101,16 +107,6 @@ export default function MenuShowcase({ items = [], onAdd }) {
                 </div>
               </button>
             ))}
-
-            <div className="card-muted p-4">
-              <p className="text-sm font-semibold text-slate-900">Ready to order?</p>
-              <div className="mt-4 flex flex-wrap gap-3">
-                <Link to={`/menu/${activeItem._id}`} className="btn-secondary">View details</Link>
-                <button type="button" onClick={() => onAdd(activeItem)} className="btn-primary">
-                  Add featured item
-                </button>
-              </div>
-            </div>
           </div>
         </div>
 
