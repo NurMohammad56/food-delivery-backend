@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { orderApi } from '../../api/services';
-import StatCard from '../../components/admin/StatCard';
-import Loader from '../../components/common/Loader';
 import EmptyState from '../../components/common/EmptyState';
+import Loader from '../../components/common/Loader';
 import { currency } from '../../lib/utils';
+import StatCard from '../components/StatCard';
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState(null);

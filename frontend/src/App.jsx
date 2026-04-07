@@ -13,12 +13,15 @@ import CheckoutPage from './pages/student/CheckoutPage';
 import OrdersPage from './pages/student/OrdersPage';
 import OrderDetailsPage from './pages/student/OrderDetailsPage';
 import ProfilePage from './pages/student/ProfilePage';
-import AdminLayout from './pages/admin/AdminLayout';
-import AdminDashboardPage from './pages/admin/AdminDashboardPage';
-import AdminOrdersPage from './pages/admin/AdminOrdersPage';
-import AdminMenuPage from './pages/admin/AdminMenuPage';
-import AdminUsersPage from './pages/admin/AdminUsersPage';
-import AdminReportsPage from './pages/admin/AdminReportsPage';
+import AdminAuthLayout from './admin/layout/AdminAuthLayout';
+import AdminLayout from './admin/layout/AdminLayout';
+import AdminLoginPage from './admin/pages/AdminLoginPage';
+import AdminDashboardPage from './admin/pages/AdminDashboardPage';
+import AdminOrdersPage from './admin/pages/AdminOrdersPage';
+import AdminMenuPage from './admin/pages/AdminMenuPage';
+import AdminUsersPage from './admin/pages/AdminUsersPage';
+import AdminReportsPage from './admin/pages/AdminReportsPage';
+import AdminProtectedRoute from './admin/routes/AdminProtectedRoute';
 
 export default function App() {
   return (
@@ -28,6 +31,10 @@ export default function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+      </Route>
+
+      <Route element={<AdminAuthLayout />}>
+        <Route path="/admin/login" element={<AdminLoginPage />} />
       </Route>
 
       <Route path="/" element={<AppShell><HomePage /></AppShell>} />
@@ -41,7 +48,7 @@ export default function App() {
         <Route path="/profile" element={<AppShell><ProfilePage /></AppShell>} />
       </Route>
 
-      <Route element={<ProtectedRoute adminOnly />}>
+      <Route element={<AdminProtectedRoute />}>
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboardPage />} />
           <Route path="orders" element={<AdminOrdersPage />} />

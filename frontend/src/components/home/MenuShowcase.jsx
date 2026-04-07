@@ -43,9 +43,9 @@ export default function MenuShowcase({ items = [], onAdd }) {
           </div>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="grid gap-6 lg:grid-cols-[1.06fr_0.94fr]">
           <div className="overflow-hidden rounded-[28px] bg-slate-950">
-            <div className="grid min-h-[320px] lg:grid-cols-[1.1fr_0.9fr]">
+            <div className="grid min-h-[360px] items-stretch lg:grid-cols-[0.95fr_1.05fr]">
               <div className="flex flex-col justify-between gap-6 p-6 text-white sm:p-8">
                 <div className="space-y-4">
                   <span className="pill w-fit border-white/15 bg-white/10 text-white/85">
@@ -67,9 +67,10 @@ export default function MenuShowcase({ items = [], onAdd }) {
                   </div>
                 </div>
               </div>
-              <div className="relative min-h-[240px] bg-gradient-to-br from-brand-200 via-brand-100 to-emerald-100">
+
+              <div className="relative min-h-[260px] overflow-hidden bg-gradient-to-br from-brand-200 via-brand-100 to-emerald-100">
                 {activeItem.imageUrl ? (
-                  <img src={activeItem.imageUrl} alt={activeItem.name} className="h-full w-full object-cover" />
+                  <img src={activeItem.imageUrl} alt={activeItem.name} className="absolute inset-0 h-full w-full object-cover object-center" />
                 ) : (
                   <div className="flex h-full items-center justify-center p-8 text-center">
                     <div className="space-y-3">
@@ -78,6 +79,7 @@ export default function MenuShowcase({ items = [], onAdd }) {
                     </div>
                   </div>
                 )}
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950/20 to-transparent" />
               </div>
             </div>
           </div>

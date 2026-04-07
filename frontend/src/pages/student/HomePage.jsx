@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { menuApi } from '../../api/services';
 import MenuCard from '../../components/menu/MenuCard';
 import Loader from '../../components/common/Loader';
@@ -15,11 +15,14 @@ export default function HomePage() {
   const [categories, setCategories] = useState([]);
   const [filters, setFilters] = useState({ category: '', search: '', minPrice: '', maxPrice: '', isAvailable: 'true' });
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
   const [toast, setToast] = useState('');
+  const hasLoadedRef = useRef(false);
 
-  const loadData = async () => {
-    setLoading(true);
+  const loadData = async ({ silent = false } = {}) => {
+    if (silent) setRefreshing(true);
+    else setLoading(true);
     setError('');
     try {
       const params = { ...filters };
@@ -33,13 +36,20 @@ export default function HomePage() {
     } catch (err) {
       setError(err?.response?.data?.message || 'Failed to load menu');
     } finally {
-      setLoading(false);
+      if (silent) setRefreshing(false);
+      else setLoading(false);
     }
   };
 
-  useEffect(() => { loadData(); }, []);
   useEffect(() => {
-    const timeout = setTimeout(loadData, 250);
+    loadData().finally(() => {
+      hasLoadedRef.current = true;
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!hasLoadedRef.current) return undefined;
+    const timeout = setTimeout(() => loadData({ silent: true }), 250);
     return () => clearTimeout(timeout);
   }, [filters.category, filters.search, filters.minPrice, filters.maxPrice, filters.isAvailable]);
 
@@ -110,8 +120,11 @@ export default function HomePage() {
             <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">Find something worth the walk</h2>
             <p className="section-subtitle">Search by keyword, narrow by category, and keep the list focused on what is actually available.</p>
           </div>
-          <div className="pill w-fit bg-brand-50 text-brand-700">
-            {matchingCount} item(s) match your filters
+          <div className="flex items-center gap-3">
+            {refreshing ? <span className="pill bg-white text-slate-500">Refreshing menu...</span> : null}
+            <div className="pill w-fit bg-brand-50 text-brand-700">
+              {matchingCount} item(s) match your filters
+            </div>
           </div>
         </div>
 
@@ -153,7 +166,7 @@ export default function HomePage() {
         {error ? <div className="card p-6 text-sm text-rose-600">{error}</div> : null}
         {!error && menuItems.length === 0 ? <EmptyState title="No menu items found" description="Try adjusting your filters or search keywords." /> : null}
 
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <div className={`grid gap-6 transition-opacity duration-200 md:grid-cols-2 xl:grid-cols-3 ${refreshing ? 'opacity-70' : 'opacity-100'}`}>
           {menuItems.map((item) => <MenuCard key={item._id} item={item} onAdd={handleAdd} />)}
         </div>
       </section>

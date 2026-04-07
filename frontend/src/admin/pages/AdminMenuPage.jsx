@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { adminApi, menuApi } from '../../api/services';
-import Loader from '../../components/common/Loader';
 import EmptyState from '../../components/common/EmptyState';
+import Loader from '../../components/common/Loader';
 
 const initialForm = { name: '', description: '', category: '', price: '', preparationTime: '', isAvailable: true, image: null };
 const initialCategoryForm = { name: '', description: '' };

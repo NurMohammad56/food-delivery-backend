@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { userApi } from '../../api/services';
-import Loader from '../../components/common/Loader';
 import EmptyState from '../../components/common/EmptyState';
+import Loader from '../../components/common/Loader';
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState([]);

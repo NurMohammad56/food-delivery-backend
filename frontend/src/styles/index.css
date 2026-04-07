@@ -11,6 +11,10 @@
   --card-border: rgba(255, 255, 255, 0.75);
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   min-height: 100vh;
   background:
