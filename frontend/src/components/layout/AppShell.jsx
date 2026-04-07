@@ -3,9 +3,9 @@ import Footer from './Footer';
 
 export default function AppShell({ children }) {
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="app-shell">
       <Navbar />
-      <main>{children}</main>
+      <main className="pb-10">{children}</main>
       <Footer />
     </div>
   );

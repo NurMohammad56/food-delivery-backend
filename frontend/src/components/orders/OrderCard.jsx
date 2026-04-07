@@ -11,21 +11,23 @@ export default function OrderCard({ order, action }) {
             <StatusBadge status={order.status} />
           </div>
           <p className="mt-1 text-sm text-slate-500">Placed on {formatDateTime(order.orderDate)}</p>
-          <p className="mt-1 text-sm text-slate-500">Estimated ready: {formatDateTime(order.estimatedReadyTime)}</p>
+          <p className="mt-1 text-sm text-slate-500">Estimated ready {formatDateTime(order.estimatedReadyTime)}</p>
         </div>
         <div className="text-left sm:text-right">
           <p className="text-lg font-bold text-slate-900">{currency(order.totalAmount)}</p>
           <p className="text-sm text-slate-500">{order.items.length} items</p>
         </div>
       </div>
+
       <div className="mt-5 space-y-3">
         {order.items.map((item) => (
-          <div key={`${order._id}-${item.menuItem?._id || item.name}`} className="flex items-center justify-between rounded-xl bg-slate-50 px-4 py-3 text-sm">
-            <span className="font-medium text-slate-700">{item.name} × {item.quantity}</span>
+          <div key={`${order._id}-${item.menuItem?._id || item.name}`} className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3 text-sm">
+            <span className="font-medium text-slate-700">{item.name} x {item.quantity}</span>
             <span className="text-slate-500">{currency(item.subtotal)}</span>
           </div>
         ))}
       </div>
+
       {order.specialInstructions ? <p className="mt-4 text-sm text-slate-600"><span className="font-semibold">Instructions:</span> {order.specialInstructions}</p> : null}
       {action ? <div className="mt-5">{action}</div> : null}
     </div>

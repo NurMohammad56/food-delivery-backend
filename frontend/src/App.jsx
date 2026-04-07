@@ -42,7 +42,7 @@ export default function App() {
       </Route>
 
       <Route element={<ProtectedRoute adminOnly />}>
-        <Route path="/admin" element={<AppShell><AdminLayout /></AppShell>}>
+        <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboardPage />} />
           <Route path="orders" element={<AdminOrdersPage />} />
           <Route path="menu" element={<AdminMenuPage />} />

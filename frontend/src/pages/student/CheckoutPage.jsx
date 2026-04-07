@@ -40,29 +40,33 @@ export default function CheckoutPage() {
     <div className="container-page py-10">
       <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
         <form onSubmit={submit} className="card p-6">
-          <h1 className="section-title">Checkout</h1>
-          <p className="mt-1 text-sm text-slate-500">Cash on pickup is the active payment method for this release.</p>
-          <div className="mt-6 rounded-2xl bg-slate-50 p-5">
+          <p className="section-kicker">Checkout</p>
+          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Confirm your pickup order</h1>
+          <p className="section-subtitle">Cash on pickup is the active payment method for this release.</p>
+
+          <div className="mt-6 rounded-[24px] bg-slate-50 p-5">
             <label className="label">Special instructions</label>
             <textarea className="input min-h-[140px]" maxLength="200" placeholder="Optional notes for the canteen staff" value={specialInstructions} onChange={(e) => setSpecialInstructions(e.target.value)} />
             <p className="mt-2 text-xs text-slate-500">{specialInstructions.length}/200 characters</p>
           </div>
+
           {error ? <p className="mt-4 text-sm text-rose-600">{error}</p> : null}
           <button className="btn-primary mt-6" disabled={loading}>{loading ? 'Placing order...' : 'Confirm order'}</button>
         </form>
+
         <aside className="card h-fit p-6">
           <h2 className="text-lg font-semibold text-slate-900">Order summary</h2>
           <div className="mt-5 space-y-3">
             {cart.items.map((item) => (
               <div key={item.menuItem?._id || item.menuItem} className="flex items-center justify-between text-sm">
-                <span className="text-slate-600">{item.name} × {item.quantity}</span>
+                <span className="text-slate-600">{item.name} x {item.quantity}</span>
                 <span className="font-medium text-slate-900">{currency(item.subtotal)}</span>
               </div>
             ))}
           </div>
           <div className="mt-5 space-y-3 border-t border-slate-200 pt-4 text-sm">
             <div className="flex items-center justify-between"><span className="text-slate-500">Estimated preparation</span><span className="font-medium text-slate-900">{estimatedReadyMinutes} min</span></div>
-            <div className="flex items-center justify-between"><span className="text-slate-500">Payment</span><span className="font-medium text-slate-900">Cash on Pickup</span></div>
+            <div className="flex items-center justify-between"><span className="text-slate-500">Payment</span><span className="font-medium text-slate-900">Cash on pickup</span></div>
             <div className="flex items-center justify-between text-base font-semibold"><span>Total</span><span>{currency(cart.totalAmount)}</span></div>
           </div>
         </aside>

@@ -42,30 +42,62 @@ export default function MenuDetailsPage() {
 
   return (
     <div className="container-page py-10">
-      <Link to="/" className="text-sm font-medium text-brand-600">← Back to menu</Link>
+      <Link to="/" className="inline-flex items-center gap-2 text-sm font-medium text-brand-700">
+        <span>&lt;</span>
+        <span>Back to menu</span>
+      </Link>
+
       <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_0.95fr]">
-        <div className="overflow-hidden rounded-3xl bg-white">
-          <div className="aspect-[4/3] bg-slate-100">
-            {item.imageUrl ? <img src={item.imageUrl} alt={item.name} className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-slate-400">No image available</div>}
+        <div className="card overflow-hidden p-3">
+          <div className="overflow-hidden rounded-[28px] bg-slate-100">
+            <div className="aspect-[4/3]">
+              {item.imageUrl ? (
+                <img src={item.imageUrl} alt={item.name} className="h-full w-full object-cover" />
+              ) : (
+                <div className="flex h-full items-center justify-center bg-gradient-to-br from-brand-100 via-white to-emerald-50 text-slate-500">
+                  <div className="space-y-3 text-center">
+                    <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-white text-3xl shadow-sm">🍱</div>
+                    <p>No image available</p>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
+
         <div className="card p-8">
-          <p className="text-sm font-semibold text-brand-600">{item.category?.name || item.category}</p>
-          <h1 className="mt-3 text-3xl font-bold text-slate-900">{item.name}</h1>
-          <p className="mt-4 text-slate-600">{item.description}</p>
+          <span className="pill bg-brand-50 text-brand-700">{item.category?.name || item.category}</span>
+          <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-950">{item.name}</h1>
+          <p className="mt-4 text-base leading-7 text-slate-600">{item.description}</p>
+
           <div className="mt-6 grid gap-4 sm:grid-cols-3">
-            <div className="rounded-2xl bg-slate-50 p-4"><p className="text-xs text-slate-500">Price</p><p className="mt-1 text-lg font-semibold">{currency(item.price)}</p></div>
-            <div className="rounded-2xl bg-slate-50 p-4"><p className="text-xs text-slate-500">Preparation</p><p className="mt-1 text-lg font-semibold">{item.preparationTime} min</p></div>
-            <div className="rounded-2xl bg-slate-50 p-4"><p className="text-xs text-slate-500">Availability</p><p className={`mt-1 text-lg font-semibold ${item.isAvailable ? 'text-emerald-600' : 'text-rose-600'}`}>{item.isAvailable ? 'In stock' : 'Out of stock'}</p></div>
+            <div className="card-muted p-4">
+              <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Price</p>
+              <p className="mt-2 text-lg font-semibold">{currency(item.price)}</p>
+            </div>
+            <div className="card-muted p-4">
+              <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Preparation</p>
+              <p className="mt-2 text-lg font-semibold">{item.preparationTime} min</p>
+            </div>
+            <div className="card-muted p-4">
+              <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Availability</p>
+              <p className={`mt-2 text-lg font-semibold ${item.isAvailable ? 'text-emerald-600' : 'text-rose-600'}`}>
+                {item.isAvailable ? 'In stock' : 'Out of stock'}
+              </p>
+            </div>
           </div>
+
           <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
             <select className="input max-w-[120px]" value={quantity} onChange={(e) => setQuantity(Number(e.target.value))}>
               {Array.from({ length: 10 }, (_, i) => i + 1).map((value) => <option key={value} value={value}>{value}</option>)}
             </select>
-            <button onClick={handleAdd} disabled={!item.isAvailable} className="btn-primary">Add to cart</button>
+            <button onClick={handleAdd} disabled={!item.isAvailable} className="btn-primary">
+              Add to cart
+            </button>
           </div>
         </div>
       </div>
+
       {toast ? <Toast message={toast} /> : null}
     </div>
   );

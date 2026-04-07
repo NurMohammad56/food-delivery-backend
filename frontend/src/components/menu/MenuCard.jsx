@@ -3,33 +3,46 @@ import { currency } from '../../lib/utils';
 
 export default function MenuCard({ item, onAdd, disabled }) {
   return (
-    <div className="card overflow-hidden">
-      <div className="aspect-[4/3] bg-slate-100">
+    <div className="card group overflow-hidden">
+      <div className="relative aspect-[4/3] bg-slate-100">
         {item.imageUrl ? (
-          <img src={item.imageUrl} alt={item.name} className="h-full w-full object-cover" />
+          <img src={item.imageUrl} alt={item.name} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]" />
         ) : (
-          <div className="flex h-full items-center justify-center text-sm text-slate-400">No image available</div>
+          <div className="flex h-full items-center justify-center bg-gradient-to-br from-brand-100 via-white to-emerald-50 text-center text-sm text-slate-500">
+            <div className="space-y-3">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-white text-2xl shadow-sm">🍱</div>
+              <p>No image available</p>
+            </div>
+          </div>
         )}
+        <div className="absolute left-4 top-4">
+          <span className="pill bg-white/90 text-slate-700">{item.preparationTime} min</span>
+        </div>
       </div>
+
       <div className="space-y-4 p-5">
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-lg font-semibold text-slate-900">{item.name}</p>
             <p className="mt-1 text-sm text-slate-500">{item.category?.name || item.category}</p>
           </div>
-          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">{item.preparationTime} min</span>
+          <span className={`rounded-full px-3 py-1 text-xs font-semibold ${item.isAvailable ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
+            {item.isAvailable ? 'Available' : 'Out'}
+          </span>
         </div>
-        <p className="line-clamp-2 text-sm text-slate-600">{item.description}</p>
-        <div className="flex items-center justify-between">
+
+        <p className="line-clamp-2 text-sm leading-6 text-slate-600">{item.description}</p>
+
+        <div className="flex items-end justify-between gap-4">
           <div>
-            <p className="text-lg font-bold text-slate-900">{currency(item.price)}</p>
-            <p className={`text-xs font-medium ${item.isAvailable ? 'text-emerald-600' : 'text-rose-600'}`}>
-              {item.isAvailable ? 'Available now' : 'Out of stock'}
-            </p>
+            <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Price</p>
+            <p className="mt-2 text-2xl font-semibold text-slate-950">{currency(item.price)}</p>
           </div>
           <div className="flex gap-2">
             <Link to={`/menu/${item._id}`} className="btn-secondary">Details</Link>
-            <button disabled={disabled || !item.isAvailable} onClick={() => onAdd(item)} className="btn-primary">Add</button>
+            <button disabled={disabled || !item.isAvailable} onClick={() => onAdd(item)} className="btn-primary">
+              Add
+            </button>
           </div>
         </div>
       </div>

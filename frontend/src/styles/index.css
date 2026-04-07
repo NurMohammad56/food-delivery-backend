@@ -4,10 +4,30 @@
 
 :root {
   color-scheme: light;
+  --surface: #fffaf5;
+  --surface-strong: #fff1e4;
+  --ink: #1f2937;
+  --muted: #64748b;
+  --card-border: rgba(255, 255, 255, 0.75);
 }
 
 body {
-  @apply bg-slate-50 text-slate-900 antialiased;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(251, 191, 36, 0.18), transparent 28%),
+    radial-gradient(circle at top right, rgba(20, 184, 166, 0.12), transparent 30%),
+    linear-gradient(180deg, #fff9f1 0%, #fff6ee 42%, #fffaf6 100%);
+  color: var(--ink);
+  font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+  @apply antialiased;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+::selection {
+  @apply bg-brand-200 text-slate-900;
 }
 
 button,
@@ -22,39 +42,80 @@ select {
 }
 
 @layer components {
+  .app-shell {
+    @apply min-h-screen bg-transparent;
+  }
+
   .container-page {
     @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
   }
 
   .card {
-    @apply rounded-2xl border border-slate-200 bg-white shadow-soft;
+    @apply rounded-[28px] border border-white/70 bg-white/85 shadow-soft backdrop-blur-sm;
+  }
+
+  .card-muted {
+    @apply rounded-[28px] border border-brand-100 bg-brand-50/80 shadow-soft;
+  }
+
+  .glass-panel {
+    @apply rounded-[28px] border border-white/30 bg-white/10 backdrop-blur-xl;
   }
 
   .btn {
-    @apply inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold;
+    @apply inline-flex items-center justify-center rounded-full px-5 py-3 text-sm font-semibold;
   }
 
   .btn-primary {
-    @apply btn bg-brand-600 text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-brand-300;
+    @apply btn bg-gradient-to-r from-brand-600 via-brand-500 to-accent text-white shadow-glow hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:from-brand-300 disabled:via-brand-300 disabled:to-brand-300 disabled:shadow-none;
   }
 
   .btn-secondary {
-    @apply btn border border-slate-300 bg-white text-slate-700 hover:bg-slate-50;
+    @apply btn border border-slate-200 bg-white/90 text-slate-700 hover:-translate-y-0.5 hover:bg-white;
   }
 
   .btn-danger {
-    @apply btn bg-rose-600 text-white hover:bg-rose-700;
+    @apply btn bg-rose-600 text-white hover:-translate-y-0.5 hover:bg-rose-700;
   }
 
   .input {
-    @apply w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100;
+    @apply w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-400 focus:ring-4 focus:ring-brand-100;
   }
 
   .label {
-    @apply mb-2 block text-sm font-medium text-slate-700;
+    @apply mb-2 block text-sm font-medium tracking-wide text-slate-700;
   }
 
   .section-title {
-    @apply text-2xl font-bold tracking-tight text-slate-900;
+    font-family: 'Segoe UI Variable Display', 'Trebuchet MS', sans-serif;
+    @apply text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl;
+  }
+
+  .section-kicker {
+    @apply text-xs font-semibold uppercase tracking-[0.28em] text-brand-600;
+  }
+
+  .section-subtitle {
+    @apply mt-2 text-sm leading-6 text-slate-500 sm:text-base;
+  }
+
+  .brand-mark {
+    @apply flex items-center justify-center rounded-[22px] bg-gradient-to-br from-brand-500 via-brand-600 to-accent text-white shadow-glow;
+  }
+
+  .pill {
+    @apply inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/80 px-3 py-1 text-xs font-medium text-slate-700 shadow-sm;
+  }
+
+  .metric-card {
+    @apply card p-5;
+  }
+
+  .admin-nav-link {
+    @apply flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-medium transition hover:bg-white/10 hover:text-white;
+  }
+
+  .admin-nav-link-active {
+    @apply bg-white text-slate-950 shadow-lg;
   }
 }
