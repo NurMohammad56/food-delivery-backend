@@ -95,11 +95,11 @@ export default function HomePage() {
     <div className="container-page py-8 sm:py-10">
       <section className="grid gap-6 xl:grid-cols-[1.04fr_0.96fr] xl:items-start">
         <div className="space-y-6">
-          <div className="relative overflow-hidden rounded-[32px] bg-slate-950 p-8 text-white shadow-soft sm:p-10">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.35),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(20,184,166,0.26),transparent_32%)]" />
+          <div className="relative overflow-hidden rounded-[32px] bg-brand-900 p-8 text-white shadow-soft sm:p-10">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(114,126,217,0.34),transparent_28%),radial-gradient(circle_at_80%_16%,rgba(255,255,255,0.08),transparent_16%),radial-gradient(circle_at_bottom_right,rgba(2,154,87,0.22),transparent_34%)]" />
             <div className="relative">
               <p className="section-kicker !text-brand-200">
-                BentoBox / Campus menu
+                NUB Canteen Hub / Campus menu
               </p>
               <h1 className="mt-4 max-w-3xl text-4xl font-semibold tracking-tight sm:text-5xl">
                 Order ahead, skip the queue, and pick up meals right on time.

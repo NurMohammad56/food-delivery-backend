@@ -60,13 +60,13 @@ export default function AdminLayout() {
   return (
     <div className="min-h-screen bg-slate-100">
       <div className="grid min-h-screen lg:grid-cols-[300px_1fr]">
-        <aside className="relative overflow-hidden border-b border-slate-800 bg-slate-950 text-white lg:border-b-0 lg:border-r">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.35),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(20,184,166,0.24),transparent_32%)]" />
+        <aside className="relative overflow-hidden border-b border-brand-900 bg-brand-900 text-white lg:border-b-0 lg:border-r">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(114,126,217,0.34),transparent_30%),radial-gradient(circle_at_82%_14%,rgba(255,255,255,0.08),transparent_18%),radial-gradient(circle_at_bottom_right,rgba(2,154,87,0.2),transparent_34%)]" />
           <div className="relative flex h-full flex-col p-6">
             <div className="flex items-center justify-between gap-4">
               <BrandLogo
                 to="/admin"
-                title="BentoBox"
+                title="NUB Canteen Hub"
                 subtitle="Admin console"
                 theme="light"
               />

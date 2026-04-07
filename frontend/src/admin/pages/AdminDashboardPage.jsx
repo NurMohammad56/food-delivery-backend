@@ -25,8 +25,8 @@ export default function AdminDashboardPage() {
   return (
     <div className="space-y-8">
       <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-        <div className="relative overflow-hidden rounded-[32px] bg-slate-950 p-7 text-white shadow-soft sm:p-8">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.35),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(20,184,166,0.22),transparent_30%)]" />
+        <div className="relative overflow-hidden rounded-[32px] bg-brand-900 p-7 text-white shadow-soft sm:p-8">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(114,126,217,0.34),transparent_28%),radial-gradient(circle_at_78%_18%,rgba(255,255,255,0.08),transparent_16%),radial-gradient(circle_at_bottom_right,rgba(2,154,87,0.2),transparent_32%)]" />
           <div className="relative">
             <p className="text-xs uppercase tracking-[0.28em] text-white/55">Operational snapshot</p>
             <h2 className="mt-3 max-w-xl text-3xl font-semibold tracking-tight">Monitor demand, revenue, and queue pressure in one place.</h2>
