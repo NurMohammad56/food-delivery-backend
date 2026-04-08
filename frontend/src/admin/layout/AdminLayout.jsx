@@ -59,8 +59,8 @@ export default function AdminLayout() {
 
   return (
     <div className="min-h-screen bg-slate-100">
-      <div className="grid min-h-screen lg:grid-cols-[300px_1fr]">
-        <aside className="relative overflow-hidden border-b border-brand-900 bg-brand-900 text-white lg:border-b-0 lg:border-r">
+      <div className="grid min-h-screen lg:items-start lg:grid-cols-[300px_minmax(0,1fr)]">
+        <aside className="relative overflow-hidden border-b border-brand-900 bg-brand-900 text-white lg:sticky lg:top-0 lg:h-screen lg:self-start lg:border-b-0 lg:border-r">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(114,126,217,0.34),transparent_30%),radial-gradient(circle_at_82%_14%,rgba(255,255,255,0.08),transparent_18%),radial-gradient(circle_at_bottom_right,rgba(2,154,87,0.2),transparent_34%)]" />
           <div className="relative flex h-full flex-col p-6">
             <div className="flex items-center justify-between gap-4">
