@@ -37,12 +37,6 @@ export default function AdminAuthLayout() {
         </div>
 
         <div className="relative flex items-center justify-center overflow-hidden px-4 py-10 sm:px-6 lg:px-12">
-          <img
-            src={carrotImage}
-            alt=""
-            aria-hidden="true"
-            className="absolute bottom-[-1.5rem] right-[-2rem] hidden w-[340px] max-w-none object-contain opacity-[0.95] lg:block"
-          />
           <div className="relative z-10 w-full max-w-md">
             <BrandLogo
               to="/"
