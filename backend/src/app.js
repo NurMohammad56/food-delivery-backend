@@ -21,6 +21,14 @@ if (process.env.NODE_ENV === "development") {
 
 app.use("/api/v1", router);
 
+app.get("/", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Welcome to the Food Delivery API",
+    timestamp: new Date().toISOString(),
+  });
+});
+
 app.use((err, req, res, next) => {
   console.error("Error:", err);
 
