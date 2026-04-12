@@ -15,8 +15,10 @@ export default function AdminUsersPage() {
   const [error, setError] = useState('');
   const [meta, setMeta] = useState({ page: 1, pages: 1, total: 0 });
   const hasLoadedRef = useRef(false);
+  const requestIdRef = useRef(0);
 
   const loadUsers = async ({ silent = false, page = meta.page } = {}) => {
+    const requestId = ++requestIdRef.current;
     if (silent) setRefreshing(true);
     else setLoading(true);
     setError('');
@@ -25,6 +27,7 @@ export default function AdminUsersPage() {
       const params = { ...filters, page, limit: PAGE_SIZE };
       Object.keys(params).forEach((key) => !params[key] && delete params[key]);
       const response = await userApi.getUsers(params);
+      if (requestId !== requestIdRef.current) return;
       setUsers(response.data.data);
       setMeta({
         page: response.data.page || page,
@@ -32,8 +35,10 @@ export default function AdminUsersPage() {
         total: response.data.total || response.data.data.length,
       });
     } catch (err) {
+      if (requestId !== requestIdRef.current) return;
       setError(err?.response?.data?.message || 'Failed to load users');
     } finally {
+      if (requestId !== requestIdRef.current) return;
       if (silent) setRefreshing(false);
       else setLoading(false);
     }
@@ -129,7 +134,7 @@ export default function AdminUsersPage() {
           </table>
         </div>
 
-        <Pagination page={meta.page} pages={meta.pages} onPageChange={(page) => loadUsers({ silent: true, page })} className="relative mt-6" />
+        <Pagination page={meta.page} pages={meta.pages} onPageChange={(page) => loadUsers({ silent: true, page })} className="relative mt-6" alwaysShow />
       </div>
     </div>
   );

@@ -7,6 +7,24 @@ import { currency } from '../../lib/utils';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 
+const asText = (value, fallback = '') => {
+  if (typeof value === 'string') return value;
+  if (value === null || value === undefined) return fallback;
+  return String(value);
+};
+
+const getCategoryLabel = (category) => {
+  if (!category) return 'Uncategorized';
+  if (typeof category === 'string') return category;
+  if (typeof category === 'object' && category.name) return asText(category.name, 'Uncategorized');
+  return 'Uncategorized';
+};
+
+const getNumber = (value, fallback = 0) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+};
+
 export default function MenuDetailsPage() {
   const { id } = useParams();
   const { isAuthenticated, isAdmin } = useAuth();
@@ -42,6 +60,12 @@ export default function MenuDetailsPage() {
   if (loading) return <Loader label="Loading item details..." />;
   if (!item) return <div className="container-page py-10">Item not found.</div>;
 
+  const itemName = asText(item.name, 'Menu item');
+  const itemDescription = asText(item.description, 'No description available');
+  const categoryLabel = getCategoryLabel(item.category);
+  const itemPrice = getNumber(item.price);
+  const preparationTime = getNumber(item.preparationTime);
+
   return (
     <div className="container-page py-10">
       <Link to="/" className="inline-flex items-center gap-2 text-sm font-medium text-brand-700">
@@ -54,7 +78,7 @@ export default function MenuDetailsPage() {
           <div className="overflow-hidden rounded-[28px] bg-slate-100">
             <div className="aspect-[4/3]">
               {item.imageUrl ? (
-                <img src={item.imageUrl} alt={item.name} className="h-full w-full object-cover" />
+                <img src={item.imageUrl} alt={itemName} className="h-full w-full object-cover" />
               ) : (
                 <div className="flex h-full items-center justify-center bg-gradient-to-br from-brand-100 via-white to-emerald-50 text-slate-500">
                   <div className="space-y-3 text-center">
@@ -68,18 +92,18 @@ export default function MenuDetailsPage() {
         </div>
 
         <div className="card p-8">
-          <span className="pill bg-brand-50 text-brand-700">{item.category?.name || item.category}</span>
-          <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-950">{item.name}</h1>
-          <p className="mt-4 text-base leading-7 text-slate-600">{item.description}</p>
+          <span className="pill bg-brand-50 text-brand-700">{categoryLabel}</span>
+          <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-950">{itemName}</h1>
+          <p className="mt-4 text-base leading-7 text-slate-600">{itemDescription}</p>
 
           <div className="mt-6 grid gap-4 sm:grid-cols-3">
             <div className="card-muted p-4">
               <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Price</p>
-              <p className="mt-2 text-lg font-semibold">{currency(item.price)}</p>
+              <p className="mt-2 text-lg font-semibold">{currency(itemPrice)}</p>
             </div>
             <div className="card-muted p-4">
               <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Preparation</p>
-              <p className="mt-2 text-lg font-semibold">{item.preparationTime} min</p>
+              <p className="mt-2 text-lg font-semibold">{preparationTime} min</p>
             </div>
             <div className="card-muted p-4">
               <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Availability</p>

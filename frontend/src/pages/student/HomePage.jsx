@@ -11,6 +11,31 @@ import sectionBackground from "../../assets/Section BG.avif";
 import pickupIllustration from "../../assets/isometric-cartoon-indian-food-illustration_98292-43248.avif";
 import orderingIllustration from "../../assets/brazilian-food-cuisine-illustration-vector.jpg";
 
+const asText = (value, fallback = "") => {
+  if (typeof value === "string") return value;
+  if (value === null || value === undefined) return fallback;
+  return String(value);
+};
+
+const getCategoryValue = (category) => {
+  if (!category) return "";
+  if (typeof category === "string") return category;
+  if (typeof category === "object" && category._id) return String(category._id);
+  return "";
+};
+
+const getCategoryLabel = (category) => {
+  if (!category) return "Uncategorized";
+  if (typeof category === "string") return category;
+  if (typeof category === "object" && category.name) return asText(category.name, "Uncategorized");
+  return "Uncategorized";
+};
+
+const getNumber = (value, fallback = 0) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+};
+
 export default function HomePage() {
   const { isAuthenticated, isAdmin } = useAuth();
   const { addToCart } = useCart();
@@ -52,20 +77,21 @@ export default function HomePage() {
     const normalizedSearch = filters.search.trim().toLowerCase();
     return allMenuItems.filter((item) => {
       const matchesCategory =
-        !filters.category ||
-        (item.category?._id || item.category) === filters.category;
+        !filters.category || getCategoryValue(item.category) === filters.category;
       const matchesMinPrice =
-        !filters.minPrice || Number(item.price) >= Number(filters.minPrice);
+        !filters.minPrice || getNumber(item.price) >= Number(filters.minPrice);
       const matchesMaxPrice =
-        !filters.maxPrice || Number(item.price) <= Number(filters.maxPrice);
+        !filters.maxPrice || getNumber(item.price) <= Number(filters.maxPrice);
       const matchesAvailability =
         filters.isAvailable === ""
           ? true
           : Boolean(item.isAvailable) === (filters.isAvailable === "true");
+      const itemName = asText(item.name).toLowerCase();
+      const itemDescription = asText(item.description).toLowerCase();
       const matchesSearch =
         !normalizedSearch ||
-        item.name?.toLowerCase().includes(normalizedSearch) ||
-        item.description?.toLowerCase().includes(normalizedSearch);
+        itemName.includes(normalizedSearch) ||
+        itemDescription.includes(normalizedSearch);
 
       return (
         matchesCategory &&
@@ -160,7 +186,7 @@ export default function HomePage() {
                     Fastest prep
                   </p>
                   <p className="mt-2 text-2xl font-semibold">
-                    {featuredItems[0]?.preparationTime || 0} min
+                    {getNumber(featuredItems[0]?.preparationTime)} min
                   </p>
                 </div>
               </div>
@@ -372,7 +398,11 @@ export default function HomePage() {
 
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {menuItems.map((item) => (
-            <MenuCard key={item._id} item={item} onAdd={handleAdd} />
+            <MenuCard
+              key={item._id || `${asText(item.name, "menu-item")}-${getCategoryLabel(item.category)}`}
+              item={item}
+              onAdd={handleAdd}
+            />
           ))}
         </div>
       </section>

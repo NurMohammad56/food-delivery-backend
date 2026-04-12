@@ -20,8 +20,10 @@ export default function AdminOrdersPage() {
   const [meta, setMeta] = useState({ page: 1, pages: 1, total: 0 });
   const [selectedOrder, setSelectedOrder] = useState(null);
   const hasLoadedRef = useRef(false);
+  const requestIdRef = useRef(0);
 
   const loadOrders = async ({ silent = false, page = meta.page } = {}) => {
+    const requestId = ++requestIdRef.current;
     if (silent) setRefreshing(true);
     else setLoading(true);
     setError('');
@@ -30,6 +32,7 @@ export default function AdminOrdersPage() {
       const params = { ...filters, page, limit: PAGE_SIZE };
       Object.keys(params).forEach((key) => !params[key] && delete params[key]);
       const response = await orderApi.getAll(params);
+      if (requestId !== requestIdRef.current) return;
       setOrders(response.data.data);
       setMeta({
         page: response.data.page || page,
@@ -37,8 +40,10 @@ export default function AdminOrdersPage() {
         total: response.data.total || response.data.data.length,
       });
     } catch (err) {
+      if (requestId !== requestIdRef.current) return;
       setError(err?.response?.data?.message || 'Failed to load orders');
     } finally {
+      if (requestId !== requestIdRef.current) return;
       if (silent) setRefreshing(false);
       else setLoading(false);
     }
@@ -165,7 +170,7 @@ export default function AdminOrdersPage() {
         ))}
       </div>
 
-      <Pagination page={meta.page} pages={meta.pages} onPageChange={(page) => loadOrders({ silent: true, page })} />
+      <Pagination page={meta.page} pages={meta.pages} onPageChange={(page) => loadOrders({ silent: true, page })} alwaysShow />
 
       <Modal
         open={Boolean(selectedOrder)}

@@ -3,6 +3,24 @@ import { Link } from "react-router-dom";
 import { currency } from "../../lib/utils";
 import showcaseBackground from "../../assets/food-vector-graphics-portable-network-graphics-vegetable-image-png-favpng-HjDgxuk9ye09rnNLRngL2ZxNG.jpg";
 
+const asText = (value, fallback = "") => {
+  if (typeof value === "string") return value;
+  if (value === null || value === undefined) return fallback;
+  return String(value);
+};
+
+const getCategoryLabel = (category) => {
+  if (!category) return "Chef special";
+  if (typeof category === "string") return category;
+  if (typeof category === "object" && category.name) return asText(category.name, "Chef special");
+  return "Chef special";
+};
+
+const getNumber = (value, fallback = 0) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+};
+
 export default function MenuShowcase({ items = [], onAdd }) {
   const featured = useMemo(() => items.slice(0, 5), [items]);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -23,6 +41,11 @@ export default function MenuShowcase({ items = [], onAdd }) {
   if (!featured.length) return null;
 
   const activeItem = featured[activeIndex];
+  const activeName = asText(activeItem?.name, "Featured item");
+  const activeDescription = asText(activeItem?.description, "Freshly plated for the campus rush.");
+  const activeCategory = getCategoryLabel(activeItem?.category);
+  const activePrepTime = getNumber(activeItem?.preparationTime);
+  const activePrice = getNumber(activeItem?.price);
 
   return (
     <div className="card relative overflow-hidden p-5 sm:p-6">
@@ -47,8 +70,7 @@ export default function MenuShowcase({ items = [], onAdd }) {
               type="button"
               onClick={() =>
                 setActiveIndex(
-                  (current) =>
-                    (current - 1 + featured.length) % featured.length,
+                  (current) => (current - 1 + featured.length) % featured.length,
                 )
               }
               className="btn-secondary h-11 w-11 !rounded-full !px-0"
@@ -72,10 +94,10 @@ export default function MenuShowcase({ items = [], onAdd }) {
         <div className="space-y-4">
           <div className="overflow-hidden rounded-[28px] bg-slate-950 shadow-soft">
             <div className="relative aspect-[16/8.5] overflow-hidden bg-gradient-to-br from-brand-200 via-brand-100 to-emerald-100">
-              {activeItem.imageUrl ? (
+              {activeItem?.imageUrl ? (
                 <img
                   src={activeItem.imageUrl}
-                  alt={activeItem.name}
+                  alt={activeName}
                   className="absolute inset-0 h-full w-full object-cover object-center"
                 />
               ) : (
@@ -96,16 +118,14 @@ export default function MenuShowcase({ items = [], onAdd }) {
             <div className="space-y-4 p-5 text-white sm:p-6">
               <div className="space-y-3">
                 <span className="pill w-fit border-white/15 bg-white/10 text-white/85">
-                  {activeItem.category?.name ||
-                    activeItem.category ||
-                    "Chef special"}
+                  {activeCategory}
                 </span>
                 <div>
                   <h3 className="text-2xl font-semibold tracking-tight sm:text-[1.9rem]">
-                    {activeItem.name}
+                    {activeName}
                   </h3>
                   <p className="mt-2 max-w-2xl text-sm leading-6 text-white/75">
-                    {activeItem.description}
+                    {activeDescription}
                   </p>
                 </div>
               </div>
@@ -116,7 +136,7 @@ export default function MenuShowcase({ items = [], onAdd }) {
                     Ready in
                   </p>
                   <p className="mt-2 text-xl font-semibold sm:text-2xl">
-                    {activeItem.preparationTime} min
+                    {activePrepTime} min
                   </p>
                 </div>
                 <div className="glass-panel p-3.5">
@@ -124,13 +144,13 @@ export default function MenuShowcase({ items = [], onAdd }) {
                     Price
                   </p>
                   <p className="mt-2 text-xl font-semibold sm:text-2xl">
-                    {currency(activeItem.price)}
+                    {currency(activePrice)}
                   </p>
                 </div>
               </div>
 
               <div className="flex flex-wrap gap-3">
-                <Link to={`/menu/${activeItem._id}`} className="btn-secondary">
+                <Link to={`/menu/${activeItem?._id}`} className="btn-secondary">
                   View details
                 </Link>
                 <button
@@ -147,7 +167,7 @@ export default function MenuShowcase({ items = [], onAdd }) {
           <div className="grid gap-3 sm:grid-cols-2">
             {featured.map((item, index) => (
               <button
-                key={item._id}
+                key={item._id || `${asText(item?.name, "featured-item")}-${index}`}
                 type="button"
                 onClick={() => setActiveIndex(index)}
                 className={`w-full rounded-[24px] border p-3.5 text-left transition ${index === activeIndex ? "border-brand-300 bg-white shadow-soft" : "border-white/70 bg-white/70 hover:bg-white"}`}
@@ -155,14 +175,14 @@ export default function MenuShowcase({ items = [], onAdd }) {
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <p className="text-sm font-semibold text-slate-950">
-                      {item.name}
+                      {asText(item?.name, "Featured item")}
                     </p>
                     <p className="mt-1 text-xs uppercase tracking-[0.2em] text-slate-400">
-                      {item.preparationTime} min prep
+                      {getNumber(item?.preparationTime)} min prep
                     </p>
                   </div>
                   <span className="text-sm font-semibold text-brand-700">
-                    {currency(item.price)}
+                    {currency(getNumber(item?.price))}
                   </span>
                 </div>
               </button>
@@ -173,11 +193,11 @@ export default function MenuShowcase({ items = [], onAdd }) {
         <div className="flex items-center gap-2">
           {featured.map((item, index) => (
             <button
-              key={`${item._id}-dot`}
+              key={`${item._id || index}-dot`}
               type="button"
               onClick={() => setActiveIndex(index)}
               className={`h-2.5 rounded-full transition ${index === activeIndex ? "w-10 bg-brand-500" : "w-2.5 bg-slate-300"}`}
-              aria-label={`Go to ${item.name}`}
+              aria-label={`Go to ${asText(item?.name, "featured item")}`}
             />
           ))}
         </div>

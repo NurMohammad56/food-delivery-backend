@@ -185,11 +185,21 @@ export const placeOrder = async (req, res) => {
 
 export const getUserOrders = async (req, res) => {
   try {
-    const { status, page = 1, limit = 10 } = req.query;
+    const { status, search, page = 1, limit = 10 } = req.query;
 
     const query = { user: req.userId };
     if (status) {
       query.status = status;
+    }
+
+    if (search) {
+      const regex = new RegExp(String(search), "i");
+      query.$or = [
+        { deliveryAddress: regex },
+        { pickupCode: regex },
+        { "items.name": regex },
+        { specialInstructions: regex },
+      ];
     }
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
