@@ -1,19 +1,92 @@
 import Order from "../models/order.model.js";
 import Cart from "../models/cart.model.js";
 import MenuItem from "../models/menuItem.model.js";
+import User from "../models/user.model.js";
 import {
   sendOrderConfirmationEmail,
   sendOrderStatusUpdateEmail,
 } from "../utils/email.js";
 
+const generatePickupCode = () =>
+  Math.random().toString(36).slice(2, 8).toUpperCase();
+
+const ensureOrderMetadata = async (order) => {
+  let changed = false;
+
+  if (!order?.pickupCode) {
+    order.pickupCode = generatePickupCode();
+    changed = true;
+  }
+
+  const user = order.user && typeof order.user === "object" ? order.user : null;
+
+  if (!order.customerName && user?.name) {
+    order.customerName = user.name;
+    changed = true;
+  }
+  if (!order.customerEmail && user?.email) {
+    order.customerEmail = user.email;
+    changed = true;
+  }
+  if (!order.customerPhone && user?.phone) {
+    order.customerPhone = user.phone;
+    changed = true;
+  }
+  if (!order.customerStudentId && user?.studentId) {
+    order.customerStudentId = user.studentId;
+    changed = true;
+  }
+
+  if (!changed) return order;
+  await order.save();
+  return order;
+};
+
 export const placeOrder = async (req, res) => {
   try {
-    const { specialInstructions, deliveryAddress } = req.body;
+    const { specialInstructions, deliveryAddress, confirmOrder } = req.body;
 
     if (!deliveryAddress || !deliveryAddress.trim()) {
       return res.status(400).json({
         success: false,
         message: "Please provide the exact address",
+      });
+    }
+
+    if (deliveryAddress.trim().length < 5) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide a more specific address",
+      });
+    }
+
+    if (confirmOrder !== true) {
+      return res.status(400).json({
+        success: false,
+        message: "Please confirm that this is a real order",
+      });
+    }
+
+    const activeOrders = await Order.countDocuments({
+      user: req.userId,
+      status: { $in: ["Pending", "Preparing", "Ready"] },
+    });
+
+    if (activeOrders >= 2) {
+      return res.status(400).json({
+        success: false,
+        message: "You already have 2 active orders. Please receive them before placing another order.",
+      });
+    }
+
+    const currentUser = await User.findById(req.userId).select(
+      "name email phone studentId",
+    );
+
+    if (!currentUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
       });
     }
 
@@ -61,6 +134,11 @@ export const placeOrder = async (req, res) => {
         subtotal: item.subtotal,
       })),
       totalAmount: cart.totalAmount,
+      customerName: currentUser.name,
+      customerEmail: currentUser.email,
+      customerPhone: currentUser.phone,
+      customerStudentId: currentUser.studentId,
+      pickupCode: generatePickupCode(),
       deliveryAddress: deliveryAddress.trim(),
       status: "Pending",
       specialInstructions: specialInstructions || "",
@@ -74,7 +152,7 @@ export const placeOrder = async (req, res) => {
     await cart.save();
 
     // Populate order for response
-    await order.populate("user", "name email");
+    await order.populate("user", "name email studentId phone");
 
     // Send confirmation email (async, don't wait)
     sendOrderConfirmationEmail(
@@ -84,6 +162,7 @@ export const placeOrder = async (req, res) => {
       {
         items: order.items,
         totalAmount: order.totalAmount,
+        pickupCode: order.pickupCode,
         deliveryAddress: order.deliveryAddress,
         estimatedReadyTime: order.estimatedReadyTime,
       },
@@ -119,7 +198,12 @@ export const getUserOrders = async (req, res) => {
       .sort({ orderDate: -1 })
       .skip(skip)
       .limit(parseInt(limit))
-      .populate("items.menuItem", "name imageUrl");
+      .populate("items.menuItem", "name imageUrl")
+      .populate("user", "name email studentId phone");
+
+    for (const order of orders) {
+      await ensureOrderMetadata(order);
+    }
 
     const total = await Order.countDocuments(query);
 
@@ -146,7 +230,9 @@ export const getOrder = async (req, res) => {
     const order = await Order.findOne({
       _id: req.params.id,
       user: req.userId,
-    }).populate("items.menuItem", "name imageUrl");
+    })
+      .populate("items.menuItem", "name imageUrl")
+      .populate("user", "name email studentId phone");
 
     if (!order) {
       return res.status(404).json({
@@ -154,6 +240,8 @@ export const getOrder = async (req, res) => {
         message: "Order not found",
       });
     }
+
+    await ensureOrderMetadata(order);
 
     res.status(200).json({
       success: true,
@@ -212,7 +300,14 @@ export const cancelOrder = async (req, res) => {
 // ============ ADMIN ENDPOINTS ============
 export const getAllOrders = async (req, res) => {
   try {
-    const { status, startDate, endDate, page = 1, limit = 20 } = req.query;
+    const {
+      status,
+      startDate,
+      endDate,
+      search,
+      page = 1,
+      limit = 20,
+    } = req.query;
 
     const query = {};
 
@@ -226,14 +321,38 @@ export const getAllOrders = async (req, res) => {
       if (endDate) query.orderDate.$lte = new Date(endDate);
     }
 
+    if (search) {
+      const regex = new RegExp(String(search), "i");
+      const matchedUsers = await User.find({
+        $or: [
+          { name: regex },
+          { email: regex },
+          { studentId: regex },
+          { phone: regex },
+        ],
+      }).select("_id");
+
+      const matchedUserIds = matchedUsers.map((user) => user._id);
+
+      query.$or = [
+        { deliveryAddress: regex },
+        { pickupCode: regex },
+        ...(matchedUserIds.length ? [{ user: { $in: matchedUserIds } }] : []),
+      ];
+    }
+
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
     const orders = await Order.find(query)
       .sort({ orderDate: -1 })
       .skip(skip)
       .limit(parseInt(limit))
-      .populate("user", "name email studentId")
+      .populate("user", "name email studentId phone")
       .populate("items.menuItem", "name");
+
+    for (const order of orders) {
+      await ensureOrderMetadata(order);
+    }
 
     const total = await Order.countDocuments(query);
 

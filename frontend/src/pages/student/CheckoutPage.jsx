@@ -10,9 +10,11 @@ export default function CheckoutPage() {
   const { cart, refreshCart } = useCart();
   const [deliveryAddress, setDeliveryAddress] = useState('');
   const [specialInstructions, setSpecialInstructions] = useState('');
+  const [confirmOrder, setConfirmOrder] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const estimatedReadyMinutes = useMemo(() => Math.min(Math.max(...cart.items.map((item) => item.menuItem?.preparationTime || 15), 15), 60), [cart.items]);
+  const hasAddress = deliveryAddress.trim().length > 0;
 
   if (!cart.items.length) {
     return (
@@ -30,6 +32,7 @@ export default function CheckoutPage() {
       const response = await orderApi.place({
         deliveryAddress,
         specialInstructions,
+        confirmOrder,
       });
       await refreshCart();
       navigate(`/orders/${response.data.data._id}`);
@@ -61,6 +64,22 @@ export default function CheckoutPage() {
             <p className="mt-2 text-xs text-slate-500">
               {deliveryAddress.length}/300 characters
             </p>
+            {!hasAddress ? (
+              <p className="mt-2 text-xs text-amber-600">
+                Add your room, floor, building, or exact pickup point to continue.
+              </p>
+            ) : null}
+          </div>
+
+          <div className="mt-6 rounded-[24px] border border-brand-100 bg-brand-50/70 p-5">
+            <p className="text-sm font-semibold text-slate-900">Pickup and verification</p>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              After placing the order, you will receive a 6 character pickup code.
+              Show that code to the canteen staff when receiving the order.
+            </p>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              To reduce fake orders, one account can keep at most 2 active orders at a time.
+            </p>
           </div>
 
           <div className="mt-6 rounded-[24px] bg-slate-50 p-5">
@@ -69,8 +88,26 @@ export default function CheckoutPage() {
             <p className="mt-2 text-xs text-slate-500">{specialInstructions.length}/200 characters</p>
           </div>
 
+          <label className="mt-6 flex items-start gap-3 rounded-[24px] border border-slate-200 bg-white px-4 py-4 text-sm text-slate-700">
+            <input
+              type="checkbox"
+              className="mt-1"
+              checked={confirmOrder}
+              onChange={(e) => setConfirmOrder(e.target.checked)}
+              required
+            />
+            <span>
+              I confirm this is a real order, I entered the correct address, and I will receive the food with my pickup code.
+            </span>
+          </label>
+
           {error ? <p className="mt-4 text-sm text-rose-600">{error}</p> : null}
-          <button className="btn-primary mt-6" disabled={loading}>{loading ? 'Placing order...' : 'Confirm order'}</button>
+          {!confirmOrder ? (
+            <p className="mt-4 text-xs text-amber-600">
+              Confirm the checkbox to place the order.
+            </p>
+          ) : null}
+          <button className="btn-primary mt-6" disabled={loading || !confirmOrder || !hasAddress}>{loading ? 'Placing order...' : 'Confirm order'}</button>
         </form>
 
         <aside className="card h-fit p-6">
@@ -89,6 +126,12 @@ export default function CheckoutPage() {
               <p className="font-medium text-slate-900">
                 {deliveryAddress.trim() || 'Add your exact address before placing the order.'}
               </p>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-slate-500">Verification</span>
+              <span className={`font-medium ${confirmOrder ? 'text-emerald-600' : 'text-amber-600'}`}>
+                {confirmOrder ? 'Confirmed' : 'Waiting'}
+              </span>
             </div>
             <div className="flex items-center justify-between"><span className="text-slate-500">Estimated preparation</span><span className="font-medium text-slate-900">{estimatedReadyMinutes} min</span></div>
             <div className="flex items-center justify-between"><span className="text-slate-500">Payment</span><span className="font-medium text-slate-900">Cash on pickup</span></div>

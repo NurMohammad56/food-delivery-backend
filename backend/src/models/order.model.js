@@ -55,6 +55,33 @@ const orderSchema = new Schema(
       required: [true, 'Please provide total amount'],
       min: [0, 'Total amount cannot be negative']
     },
+    customerName: {
+      type: String,
+      trim: true,
+      maxlength: [100, 'Customer name cannot exceed 100 characters']
+    },
+    customerEmail: {
+      type: String,
+      trim: true,
+      lowercase: true
+    },
+    customerPhone: {
+      type: String,
+      trim: true
+    },
+    customerStudentId: {
+      type: String,
+      trim: true
+    },
+    pickupCode: {
+      type: String,
+      required: [true, 'Please provide pickup code'],
+      uppercase: true,
+      trim: true,
+      minlength: [6, 'Pickup code must be 6 characters'],
+      maxlength: [6, 'Pickup code must be 6 characters'],
+      index: true
+    },
     deliveryAddress: {
       type: String,
       required: [true, 'Please provide exact address'],

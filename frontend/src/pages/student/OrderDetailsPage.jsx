@@ -23,7 +23,7 @@ export default function OrderDetailsPage() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="section-title">Order confirmation</h1>
-          <p className="mt-1 text-sm text-slate-500">Your order has been submitted successfully.</p>
+          <p className="mt-1 text-sm text-slate-500">Your order has been submitted successfully. Keep the pickup code ready for the staff.</p>
         </div>
         <Link to="/orders" className="btn-secondary">Back to orders</Link>
       </div>
