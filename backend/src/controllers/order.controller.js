@@ -75,7 +75,8 @@ export const placeOrder = async (req, res) => {
     if (activeOrders >= 2) {
       return res.status(400).json({
         success: false,
-        message: "You already have 2 active orders. Please receive them before placing another order.",
+        message:
+          "You already have 2 active orders. Please receive them before placing another order.",
       });
     }
 
@@ -113,7 +114,7 @@ export const placeOrder = async (req, res) => {
       }
     }
 
-    // Calculate estimated ready time (sum of preparation times, max 60 min)
+    // Calculate estimated ready time
     const totalPrepTime = Math.min(
       cart.items.reduce((max, item) => {
         return Math.max(max, item.menuItem.preparationTime || 15);
@@ -154,7 +155,7 @@ export const placeOrder = async (req, res) => {
     // Populate order for response
     await order.populate("user", "name email studentId phone");
 
-    // Send confirmation email (async, don't wait)
+    // Send confirmation email
     sendOrderConfirmationEmail(
       order.user.email,
       order.user.name,
