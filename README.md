@@ -4,7 +4,6 @@ This package contains the completed project deliverables:
 
 - `backend/` - existing backend code kept unchanged
 - `frontend/` - completed React frontend integrated with the backend API
-- `FINAL_SRS_NUB_Campus_Food_Delivery_System.docx` - updated final SRS document
 
 ## Run backend
 
