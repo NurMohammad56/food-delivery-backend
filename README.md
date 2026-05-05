@@ -2,8 +2,8 @@
 
 This package contains the completed project deliverables:
 
-- `backend/` - existing backend code kept unchanged
-- `frontend/` - completed React frontend integrated with the backend API
+- `backend/` - Completed
+- `frontend/` - Completed
 
 ## Run backend
 
