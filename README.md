@@ -10,6 +10,7 @@ This package contains the completed project deliverables:
 ```bash
 cd backend
 npm install
+cp .env.example .env
 npm run dev
 ```
 
